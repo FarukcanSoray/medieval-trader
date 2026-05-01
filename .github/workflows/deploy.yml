@@ -21,14 +21,6 @@ jobs:
             barichello/godot-ci:4.5.1 \
             godot --headless --export-release "Web" build/web/index.html
 
-      - name: Write _headers for COOP/COEP
-        run: |
-          cat > godot/build/web/_headers <<'EOF'
-          /*
-            Cross-Origin-Opener-Policy: same-origin
-            Cross-Origin-Embedder-Policy: require-corp
-          EOF
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
