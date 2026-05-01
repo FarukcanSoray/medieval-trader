@@ -66,6 +66,10 @@ func _ready() -> void:
 	# Next real tick_advanced will then write — boot stays quiet on disk.
 	Game.state_dirty.emit()
 
+	# After boot-paint so the resume's first tick_advanced -> SaveService.write_now
+	# captures the freshly-painted state instead of racing the boot-paint emits.
+	_travel_controller.resume_if_in_flight()
+
 func _on_travel_requested(to_id: String) -> void:
 	var from_id: String = Game.trader.location_node_id
 	var cost: int = _travel_controller.compute_cost(to_id)

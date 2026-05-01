@@ -79,6 +79,13 @@ func process_tick() -> void:
 		if _trader == null or _world == null or not is_inside_tree():
 			return
 
+# Post-refresh resume seam. SaveService restores trader.travel correctly, but the
+# process_tick() coroutine that drives ticks_remaining to zero died with the old
+# scene tree — without this, every UI predicate stays gated on travel == null forever.
+func resume_if_in_flight() -> void:
+	if _trader != null and _trader.travel != null:
+		process_tick()
+
 func _find_edge(a: String, b: String) -> EdgeState:
 	if a == "" or b == "" or a == b:
 		return null
