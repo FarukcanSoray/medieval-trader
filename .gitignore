@@ -7,6 +7,8 @@ godot/build/
 godot/builds/
 godot/export/
 godot/exports/
+build/
+
 *.pck
 *.zip
 # Web export artifacts (only keep these if you intentionally version a build)
