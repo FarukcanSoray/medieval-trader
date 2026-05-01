@@ -26,6 +26,12 @@ text = "Age: -"
 [node name="LocationLabel" type="Label" parent="HBox"]
 text = "Location: -"
 
+[node name="SeedSeparator" type="VSeparator" parent="HBox"]
+
+[node name="SeedLabel" type="Label" parent="HBox"]
+custom_minimum_size = Vector2(120, 0)
+text = "seed: -"
+
 [node name="CorruptionToast" type="Label" parent="."]
 visible = false
 anchor_left = 1.0

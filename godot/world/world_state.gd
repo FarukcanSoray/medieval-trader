@@ -37,6 +37,28 @@ func outbound_edges(node_id: String) -> Array[EdgeState]:
 			result.append(e)
 	return result
 
+## Returns the id of the highest-degree node, tie-broken by lexicographically
+## smallest id. Pure function over nodes/edges; returns "" if no nodes exist.
+func get_starting_node_id() -> String:
+	if nodes.is_empty():
+		return ""
+	var degree: Dictionary[String, int] = {}
+	for n: NodeState in nodes:
+		degree[n.id] = 0
+	for e: EdgeState in edges:
+		if degree.has(e.a_id):
+			degree[e.a_id] += 1
+		if degree.has(e.b_id):
+			degree[e.b_id] += 1
+	var best_id: String = ""
+	var best_degree: int = -1
+	for n: NodeState in nodes:
+		var d: int = degree[n.id]
+		if d > best_degree or (d == best_degree and n.id < best_id):
+			best_degree = d
+			best_id = n.id
+	return best_id
+
 func to_dict() -> Dictionary:
 	var nodes_array: Array = []
 	for n: NodeState in nodes:

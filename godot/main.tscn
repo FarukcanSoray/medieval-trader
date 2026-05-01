@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1_main"]
 [ext_resource type="Script" path="res://travel/travel_controller.gd" id="2_travel_controller"]
@@ -10,12 +10,16 @@
 [ext_resource type="PackedScene" path="res://ui/hud/confirm_dialog.tscn" id="8_confirm_dialog"]
 [ext_resource type="PackedScene" path="res://ui/hud/status_bar.tscn" id="9_status_bar"]
 [ext_resource type="PackedScene" path="res://ui/death_screen/death_screen.tscn" id="10_death_screen"]
+[ext_resource type="Script" path="res://world/map_view.gd" id="11_map_view"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
 _death_scene = ExtResource("10_death_screen")
 
 [node name="World" type="Node2D" parent="."]
+
+[node name="MapView" type="Node2D" parent="World"]
+script = ExtResource("11_map_view")
 
 [node name="TravelController" type="Node" parent="."]
 script = ExtResource("2_travel_controller")

@@ -13,6 +13,7 @@ const CORRUPTION_TOAST_TEXT: String = "Save was corrupted -- beginning anew"
 @onready var _gold_label: Label = $HBox/GoldLabel
 @onready var _age_label: Label = $HBox/AgeLabel
 @onready var _location_label: Label = $HBox/LocationLabel
+@onready var _seed_label: Label = $HBox/SeedLabel
 @onready var _corruption_toast: Label = $CorruptionToast
 
 func _ready() -> void:
@@ -33,6 +34,7 @@ func _refresh() -> void:
 		_gold_label.text = "Gold: -"
 		_age_label.text = "Age: -"
 		_location_label.text = "Location: -"
+		_seed_label.text = "seed: -"
 		return
 	_gold_label.text = "Gold: %dg" % trader.gold
 	# Age display: ticks until Designer rules on years/ticks conversion.
@@ -45,6 +47,8 @@ func _refresh() -> void:
 		]
 	else:
 		_location_label.text = "Location: %s" % _node_display_name(trader.location_node_id)
+	# Seed is constant within a session; existing _refresh() triggers cover it.
+	_seed_label.text = "seed: %d" % world.world_seed
 
 func _node_display_name(node_id: String) -> String:
 	var node: NodeState = Game.world.get_node_by_id(node_id)

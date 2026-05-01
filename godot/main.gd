@@ -28,7 +28,7 @@ func _ready() -> void:
 
 	# Architect's canonical ordering — binding. No code between bootstrap() and
 	# the setup() calls; panels self-refresh on bootstrap-completion signals.
-	await Game.bootstrap()
+	await Game.bootstrap(_parse_seed_override())
 	# Game.died only fires on the alive→dead transition; a dead-state boot never
 	# re-emits, so Main must branch to DeathScreen itself. No write_now() needed —
 	# the death write completed in the previous session via _on_died.
@@ -145,3 +145,24 @@ func _distance_to(to_id: String) -> int:
 # wire; cast to recover static typing.
 func _save_service() -> SaveService:
 	return Game.get_node("SaveService") as SaveService
+
+# Slice-2: --seed=N as the first matching cmdline user arg overrides the
+# wall-clock seed for fresh worlds. Per spec, regex accepts negative ints;
+# downstream `seed_override >= 0` check filters them back to the wall-clock
+# fallback. Returns -1 on no match or parse failure -- load-branch ignores
+# this; only _generate_fresh consumes it.
+func _parse_seed_override() -> int:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.is_empty():
+		return -1
+	var regex: RegEx = RegEx.new()
+	regex.compile("^--seed=(-?\\d+)$")
+	for arg: String in args:
+		var result: RegExMatch = regex.search(arg)
+		if result != null:
+			var parsed: int = int(result.get_string(1))
+			if parsed < 0:
+				push_warning("--seed=%d ignored: negative seeds use wall-clock fallback" % parsed)
+				return -1
+			return parsed
+	return -1

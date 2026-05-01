@@ -27,7 +27,7 @@ func _on_tick_advanced(new_tick: int) -> void:
 func _drift_node_prices(node: NodeState, tick: int) -> void:
 	for good_id: String in node.prices.keys():
 		# §5: same hash schema as WorldGen._seed_price — (world_seed, tick, node_id, good_id).
-		# RNG-per-draw mirrors WorldGen; at slice scale (3 nodes × 2 goods = 6 allocs/tick,
+		# RNG-per-draw mirrors WorldGen; at slice scale (7 nodes × 2 goods = 14 allocs/tick,
 		# only on player-driven travel ticks) the alloc cost is negligible.
 		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 		rng.seed = hash([_world.world_seed, tick, node.id, good_id])

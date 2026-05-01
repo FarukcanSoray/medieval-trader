@@ -42,7 +42,7 @@ func _ready() -> void:
 	add_child(_death_service)
 	bootstrap()
 
-func bootstrap() -> void:
+func bootstrap(seed_override: int = -1) -> void:
 	# Three-state guard per Tier 7 Debugger: world != null (done) → return;
 	# _bootstrapping (in flight) → park on bootstrap_completed; else run body.
 	# Survives future awaits inserted before world assignment in load_or_init().
@@ -52,7 +52,7 @@ func bootstrap() -> void:
 		await bootstrap_completed
 		return
 	_bootstrapping = true
-	await _save_service.load_or_init()
+	await _save_service.load_or_init(seed_override)
 	# B1 invariant harness runs here, BEFORE _bootstrapping clears, so a
 	# corrupted dead-record can't reach Main._ready's death-screen branch.
 	# Per 2026-05-01-save-invariant-checker-harness-no-autoload this site is
