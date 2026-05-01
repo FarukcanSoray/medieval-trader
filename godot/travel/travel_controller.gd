@@ -49,9 +49,8 @@ func request_travel(to_id: String) -> void:
 	Game.emit_state_dirty.call()
 
 # Drives the per-step tick loop until arrival. Per the tick-granularity-per-step
-# decision: N tick_advanced for N-tick travel, not batched. MUST yield once per
-# iteration so SaveService.write_now (triggered by tick_advanced) completes
-# before the next tick — see Question B ratification.
+# decision: N tick_advanced for N-tick travel, not batched. The per-iteration yield
+# below is wall-clock pacing, not a save-ordering primitive — see comment at the await.
 func process_tick() -> void:
 	if _trader == null or _world == null:
 		return
@@ -70,12 +69,15 @@ func process_tick() -> void:
 		Game.emit_state_dirty.call()
 		# 4. tick_advanced: SaveService handler runs synchronously, awaits write_now.
 		Game.tick_advanced.emit(_world.tick)
-		# 5. Yield: our await registers AFTER SaveService's, so the writer resumes
-		#    first; then we resume into the next iteration. Question B ratification.
-		# [verify on Tier 7] Resume order is empirically FIFO in Godot 4.x but not
-		# documented as guaranteed. If save races appear under fast travel, the fix
-		# is a re-entry guard on SaveService._on_tick_advanced.
-		await get_tree().process_frame
+		# 5. Wall-clock pacing so a journey is perceptible rather than instant.
+		#    SaveService's write_now completes well before the next tick at this
+		#    duration; re-entry guard on SaveService._on_tick_advanced covers the
+		#    future-shorter-tick case if this ever tightens.
+		await get_tree().create_timer(WorldRules.TICK_DURATION_SECONDS).timeout
+		# Post-await freed-state guard: scene swap or save reload between iterations
+		# can tear down our deps. Mirrors entry guards above.
+		if _trader == null or _world == null or not is_inside_tree():
+			return
 
 func _find_edge(a: String, b: String) -> EdgeState:
 	if a == "" or b == "" or a == b:
