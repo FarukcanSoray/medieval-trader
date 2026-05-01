@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to itch.io
 
 on:
   push:
@@ -8,6 +8,9 @@ on:
 env:
   GODOT_VERSION: 4.5.1
   GODOT_RELEASE: stable
+  ITCH_USER: fasolt
+  ITCH_GAME: medieval-trader
+  ITCH_CHANNEL: html5
 
 jobs:
   deploy:
@@ -17,10 +20,11 @@ jobs:
         uses: actions/checkout@v4
 
       # The barichello/godot-ci:4.5.1 image ships templates under the wrong
-      # versioned path (4.5.stable/, not 4.5.1.stable/) and the variant we
-      # need for a sub-25 MiB wasm — web_nothreads_release.zip — was not
-      # being picked up. Download the official 4.5.1 templates ourselves and
-      # mount them into the container at the exact path Godot 4.5.1 looks at.
+      # versioned path (4.5.stable/, not 4.5.1.stable/) and is missing the
+      # web_nothreads_release.zip variant. Download the official 4.5.1
+      # templates ourselves and mount them at the path Godot 4.5.1 expects.
+      # No-threads is required because itch.io doesn't serve COOP/COEP by
+      # default, so SharedArrayBuffer/threading wouldn't work at runtime.
       - name: Fetch official Godot ${{ env.GODOT_VERSION }} export templates
         run: |
           set -euo pipefail
@@ -54,9 +58,19 @@ jobs:
           echo "--- index.wasm size ---"
           du -h godot/build/web/index.wasm
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy godot/build/web --project-name=medieval-trader --branch=main
+      - name: Install Butler
+        run: |
+          set -euo pipefail
+          curl -fL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler-bin
+          chmod +x butler-bin/butler
+          butler-bin/butler -V
+
+      - name: Deploy to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          set -euo pipefail
+          butler-bin/butler push godot/build/web \
+            "${ITCH_USER}/${ITCH_GAME}:${ITCH_CHANNEL}" \
+            --userversion "${GITHUB_SHA::7}"
