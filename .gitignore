@@ -1,0 +1,41 @@
+# Godot 4 — generated cache, do not commit
+godot/.godot/
+godot/.import/
+
+# Godot exports / builds
+godot/build/
+godot/builds/
+godot/export/
+godot/exports/
+*.pck
+*.zip
+# Web export artifacts (only keep these if you intentionally version a build)
+*.wasm
+godot/*.html
+
+# Godot Mono (not used here, but safe to ignore)
+.mono/
+godot/.mono/
+*.csproj
+*.sln
+
+# Claude Code — per-machine settings
+.claude/settings.local.json
+
+# Obsidian — per-machine workspace state (keep config + plugins)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspaces.json
+.obsidian/cache
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor backups / swap files
+*~
+*.swp
+*.swo
+*.bak
+*.orig

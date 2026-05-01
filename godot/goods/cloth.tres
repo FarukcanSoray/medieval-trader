@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Good" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://goods/good.gd" id="1_good"]
+
+[resource]
+script = ExtResource("1_good")
+id = "cloth"
+display_name = "Cloth"
+base_price = 18
+floor_price = 8
+ceiling_price = 32

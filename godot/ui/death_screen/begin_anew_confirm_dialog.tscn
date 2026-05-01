@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/death_screen/begin_anew_confirm_dialog.gd" id="1_begin_anew_confirm_dialog"]
+
+[node name="BeginAnewConfirm" type="AcceptDialog"]
+title = "Begin Anew"
+ok_button_text = "Begin Anew"
+dialog_text = "Begin anew? This will erase the current trader and generate a new world. This cannot be undone."
+script = ExtResource("1_begin_anew_confirm_dialog")
