@@ -28,31 +28,29 @@ Anything else — partial state, regenerated world, ghost gold, kept inventory w
 
 ---
 
-## 2. Step 0 — COOP/COEP verification
+## 2. Step 0 — Boot verification
 
-This step gates whether the rest of B1 is even meaningful. SharedArrayBuffer (used by Godot's HTML5 export) requires cross-origin isolation. If the served HTML lacks the right headers, the canvas may still render but threading/IndexedDB behavior diverges from the reference and B1 results will not generalize.
+This step gates whether the rest of B1 is even meaningful. The build under test is the **no-threads** Godot Web variant (`thread_support=false` in `godot/export_presets.cfg`); it does not use SharedArrayBuffer and does not require COOP/COEP cross-origin isolation headers. Step 0 was historically a COOP/COEP check; per [[2026-05-02-b1-step-zero-no-threads-no-coop-coep]] (which supersedes [[2026-05-01-b1-coop-coep-verification-step-zero]]) it is now a boot-completion check only.
 
 **Procedure:**
 
-1. Start the HTML5 build from the local server used for B1 (the one configured by web-deployer; do not open the `.html` file directly via `file://`).
+1. Start the HTML5 build at the host the test will run against (itch.io for the canonical-target run, or the deploy URL produced by web-deployer; do not open the `.html` file directly via `file://`).
 2. Open the page in a desktop browser. Open DevTools (F12 or Ctrl+Shift+I).
-3. Switch to the **Network** panel. Tick "Disable cache". Hard-reload the page (Ctrl+F5).
-4. Click the top-level HTML document request (the one ending in `.html` or `/`).
-5. In the Headers tab, scroll to **Response Headers**. Confirm both:
-   - `Cross-Origin-Opener-Policy: same-origin`
-   - `Cross-Origin-Embedder-Policy: require-corp`
-6. Wait for the Godot canvas to reach the **main menu**. The boot sequence must complete; a frozen splash means iteration is invalid even if headers were correct.
+3. Switch to the **Console** panel. Hard-reload the page (Ctrl+F5).
+4. Wait for the Godot canvas to reach the **main menu** (or the boot scene's terminal state — see [[2026-05-01-boot-terminal-state-branch-in-main]]). The boot sequence must complete; a frozen splash, a `wasm` decode error, or any console error referencing `SharedArrayBuffer`, `crossOriginIsolated`, threading, or `Atomics` means the build under test is not the no-threads variant or the host is misconfigured for it, and iteration is invalid.
 
-**Pass condition for Step 0:** both headers present AND main menu reached.
+**Pass condition for Step 0:** main menu (or terminal boot state) reached AND no console error referencing SharedArrayBuffer / crossOriginIsolated / threading / Atomics.
 
-**If Step 0 fails** (either header missing or canvas does not reach main menu): **stop.** Do not run iterations 1–6. Route to web-deployer with a note specifying which condition failed (header name(s) absent or boot stall) and the exact server config used. B1 cannot proceed until Step 0 is green.
+**If Step 0 fails:** **stop.** Do not run iterations 1–6. Route to web-deployer with a note specifying which condition failed (boot stall, wasm decode error, threading-related console error) and the exact host/URL used. B1 cannot proceed until Step 0 is green.
+
+> **If a future build switches back to the threaded variant** (`thread_support=true`), restore the COOP/COEP check from [[2026-05-01-b1-coop-coep-verification-step-zero]] before running B1.
 
 ---
 
 ## 3. Pre-test setup (do once before iterations)
 
 1. From a fresh incognito window (to ensure clean IndexedDB), boot the HTML5 build. Complete world gen so a save exists.
-2. Open DevTools → Application → IndexedDB → `/userfs` (Godot's HTML5 mount). Confirm `save.json` is present.
+2. Open DevTools -> Application -> IndexedDB -> `/userfs` (Godot's HTML5 mount). Confirm `save.json` is present.
 3. Note the `world_seed` and the three node ids + their wool prices from the in-game UI or via DevTools Console (`Game.world.nodes` if exposed in debug). Record these in the §4 table.
 4. Keep the DevTools Console panel visible during all iterations — the harness writes there.
 
@@ -62,7 +60,7 @@ This step gates whether the rest of B1 is even meaningful. SharedArrayBuffer (us
 
 Fill one row per iteration before pressing F5 / closing tab. Compact form for inventory: `wool:N` (slice has 1–2 goods per spec §6; if the slice has both wool and a second good, use `wool:N,good2:N`).
 
-| # | Refresh timing                | Pre-refresh `gold` | Pre-refresh `inventory` | Pre-refresh location or `travel.from→to` | Pre-refresh `tick` | Pre-refresh `travel.cost_paid` | `world_seed` | Node A id : wool price | Node B id : wool price | Node C id : wool price |
+| # | Refresh timing                | Pre-refresh `gold` | Pre-refresh `inventory` | Pre-refresh location or `travel.from->to` | Pre-refresh `tick` | Pre-refresh `travel.cost_paid` | `world_seed` | Node A id : wool price | Node B id : wool price | Node C id : wool price |
 |---|-------------------------------|--------------------|-------------------------|------------------------------------------|--------------------|--------------------------------|--------------|------------------------|------------------------|------------------------|
 | 1 | F5 at tick 0 of travel        |                    |                         |                                          |                    |                                |              |                        |                        |                        |
 | 2 | F5 at mid-window (~half ticks)|                    |                         |                                          |                    |                                |              |                        |                        |                        |
@@ -84,10 +82,10 @@ For each iteration row, follow the four phases below. The harness predicates ref
 | Iter | Stage action |
 |------|--------------|
 | 1    | Start from idle at Node A. Press "Travel to B". Confirm. Do **not** wait for any tick. Refresh immediately (target: durable save reflects either pre-departure or first-tick state). |
-| 2    | Start travel A→B. Wait until `ticks_remaining` ≈ `distance/2`. Refresh. |
-| 3    | Start travel A→B. Wait until `ticks_remaining == 1` (display: `Travelling: 1 tick remaining`). Refresh. |
-| 4    | Start travel A→B. Wait to mid-window. Close the browser tab via the X button (do **not** F5). Reopen the same URL in a new tab of the same browser profile. |
-| 5    | In an incognito window: start a fresh game (will generate a new world; record its seed in row 5). Travel A→B to mid-window. F5. (Incognito IndexedDB is per-session — this iteration verifies that "no durable save" is handled cleanly, not that a prior save survives.) |
+| 2    | Start travel A->B. Wait until `ticks_remaining` ≈ `distance/2`. Refresh. |
+| 3    | Start travel A->B. Wait until `ticks_remaining == 1` (display: `Travelling: 1 tick remaining`). Refresh. |
+| 4    | Start travel A->B. Wait to mid-window. Close the browser tab via the X button (do **not** F5). Reopen the same URL in a new tab of the same browser profile. |
+| 5    | In an incognito window: start a fresh game (will generate a new world; record its seed in row 5). Travel A->B to mid-window. F5. (Incognito IndexedDB is per-session — this iteration verifies that "no durable save" is handled cleanly, not that a prior save survives.) |
 | 6    | Idle at Node A (no travel). F5. |
 
 ### Phase 2 — Record pre-refresh observables
@@ -112,7 +110,7 @@ After the canvas reaches main menu / in-game UI:
    - **P3 — Schema version.** `world.schema_version == 1`. Catches **FM11** (silent schema bump: save loaded under a version mismatch the migration layer didn't trip).
    - **P4 — Death-state consistency.** If `world.dead == true`: `world.death != null`, `trader.gold == world.death.final_gold`, and `world.death.cause` is non-empty. Catches **FM12** (death-state injection: dead flag without a coherent death record, or final_gold drift between trader and death record).
    - **P5 — Non-negative integers, no zero-quantity inventory.** All ints non-negative (`gold`, `age_ticks`, `tick`, every `inventory[good]`, every `nodes[].prices[good]`); `inventory` contains no keys whose value is zero. Catches **FM7 partial** — negatives only. Tick-consistency aspects of FM7 are handled in §6 item 4.
-   - **P6 — History integrity.** `history.size() ≤ 10` AND every `node_id` referenced in any `history[].detail` (parsed from arrow-form strings like `"hillfarm→rivertown"`) resolves in `world.nodes`. Catches **FM8** (history referential integrity + history cap exceeded).
+   - **P6 — History integrity.** `history.size() ≤ 10` AND every `node_id` referenced in any `history[].detail` (parsed from arrow-form strings like `"hillfarm->rivertown"`) resolves in `world.nodes`. Catches **FM8** (history referential integrity + history cap exceeded).
 
 4. **Apply manual checklist (§6).** The harness covers single-boot invariants only. §6 covers FM1, FM2, FM3, FM4, FM9, FM10 (fundamentally pre/post comparisons), plus FM7 tick-consistency-with-branch and FM10 seed-level world regen.
 
@@ -174,13 +172,13 @@ Expected output on a clean PASS run: six lines, all `PASS P1` through `PASS P6`,
 
 On any FAIL, the line takes the form `[B1 harness] FAIL Pn: <reason>` where `<reason>` is the harness's short diagnostic. Record the full FAIL line verbatim in the §9 outcome notes — do not paraphrase, the diagnostic text is the bug report.
 
-**FAIL → user-facing behavior.** When any predicate fails, the harness build also surfaces a toast in the running game with the text:
+**FAIL -> user-facing behavior.** When any predicate fails, the harness build also surfaces a toast in the running game with the text:
 
 > Save was corrupted — beginning anew
 
 and re-initializes a fresh world. The tester should confirm this toast appears on every harness FAIL and that the post-toast world is in fact a fresh-start state (no inventory, starting gold, default location). Absence of the toast on a FAIL is itself a secondary bug — log it in §9.
 
-**Mapping to FMs (recap from §5):** P1→FM5, P2→FM6, P3→FM11, P4→FM12, P5→FM7-partial (negatives), P6→FM8. FMs not covered by the harness (FM1, FM2, FM3, FM4, FM7-tick-consistency, FM9, FM10) are the §6 manual checklist's responsibility. If a §5 harness run is all-PASS but a §6 manual item FAILs, the B1 run still FAILS — the harness is not the sole arbiter.
+**Mapping to FMs (recap from §5):** P1->FM5, P2->FM6, P3->FM11, P4->FM12, P5->FM7-partial (negatives), P6->FM8. FMs not covered by the harness (FM1, FM2, FM3, FM4, FM7-tick-consistency, FM9, FM10) are the §6 manual checklist's responsibility. If a §5 harness run is all-PASS but a §6 manual item FAILs, the B1 run still FAILS — the harness is not the sole arbiter.
 
 Multiple simultaneous FAILs are possible and should all be recorded; do not stop at the first FAIL.
 

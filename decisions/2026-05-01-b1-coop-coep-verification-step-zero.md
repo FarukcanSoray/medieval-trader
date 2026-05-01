@@ -1,9 +1,12 @@
 ---
 title: B1 protocol Step 0 — verify COOP/COEP headers before running iterations
 date: 2026-05-01
-status: ratified
-tags: [decision, b1, web-export, verification]
+status: superseded
+superseded_by: 2026-05-02-b1-step-zero-no-threads-no-coop-coep
+tags: [decision, b1, web-export, verification, superseded]
 ---
+
+> **Superseded 2026-05-02** by [[2026-05-02-b1-step-zero-no-threads-no-coop-coep]]. The export preset was flipped to no-threads later on 2026-05-01 (commit 8d500a2) for itch.io compatibility, after which the COOP/COEP check was no longer applicable to the canonical build. Step 0 now requires only that the canvas reaches main menu. The original prose below stands as the record of what was originally ratified.
 
 # B1 protocol Step 0 — verify COOP/COEP headers before running iterations
 

@@ -44,7 +44,7 @@ func _refresh() -> void:
 	var node: NodeState = world.get_node_by_id(trader.location_node_id)
 
 	if travelling or node == null:
-		_title_label.text = "Travelling…" if travelling else "Node: -"
+		_title_label.text = "Travelling..." if travelling else "Node: -"
 		_set_all_rows_disabled(true)
 		# Still show last-known prices/owned qty rather than blanking — predicates only.
 		for good: Good in Game.goods:
