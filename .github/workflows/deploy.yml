@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  GODOT_VERSION: 4.5.1
+  GODOT_RELEASE: stable
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,14 +16,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # The barichello/godot-ci:4.5.1 image ships templates under the wrong
+      # versioned path (4.5.stable/, not 4.5.1.stable/) and the variant we
+      # need for a sub-25 MiB wasm — web_nothreads_release.zip — was not
+      # being picked up. Download the official 4.5.1 templates ourselves and
+      # mount them into the container at the exact path Godot 4.5.1 looks at.
+      - name: Fetch official Godot ${{ env.GODOT_VERSION }} export templates
+        run: |
+          set -euo pipefail
+          TEMPLATES_DIR="${{ github.workspace }}/.godot-templates/${GODOT_VERSION}.${GODOT_RELEASE}"
+          mkdir -p "${TEMPLATES_DIR}"
+          TPZ="Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz"
+          curl -fL -o "${TPZ}" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/${TPZ}"
+          # .tpz is a plain zip with a top-level templates/ directory.
+          unzip -q "${TPZ}" -d ".godot-templates-extract"
+          mv .godot-templates-extract/templates/* "${TEMPLATES_DIR}/"
+          rm -rf .godot-templates-extract "${TPZ}"
+          # Fail fast if the no-threads variant isn't there — that means the
+          # release layout changed and the rest of this job is pointless.
+          test -f "${TEMPLATES_DIR}/web_nothreads_release.zip" \
+            || { echo "Missing web_nothreads_release.zip in templates pack"; exit 1; }
+          ls -la "${TEMPLATES_DIR}"
+
       - name: Export Web build
         run: |
+          set -euo pipefail
           mkdir -p godot/build/web
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
+            -v "${{ github.workspace }}/.godot-templates:/root/.local/share/godot/export_templates" \
             -w /workspace/godot \
-            barichello/godot-ci:4.5.1 \
+            barichello/godot-ci:${{ env.GODOT_VERSION }} \
             godot --headless --export-release "Web" build/web/index.html
+          echo "--- build/web contents ---"
+          ls -la godot/build/web
+          echo "--- index.wasm size ---"
+          du -h godot/build/web/index.wasm
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
