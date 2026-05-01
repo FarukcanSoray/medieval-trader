@@ -25,3 +25,15 @@ text = "Age: -"
 
 [node name="LocationLabel" type="Label" parent="HBox"]
 text = "Location: -"
+
+[node name="CorruptionToast" type="Label" parent="."]
+visible = false
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = 4.0
+offset_right = -8.0
+offset_bottom = -4.0
+horizontal_alignment = 2
+text = "Save was corrupted -- beginning anew"

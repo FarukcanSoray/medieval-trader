@@ -51,3 +51,7 @@ High. Director's call was definitive on the warn-only override; toast copy was r
 - [[2026-04-29-death-cause-stranded]] — past-participle tone precedent
 - [[2026-05-01-save-invariant-checker-harness-no-autoload]] — the harness whose failures trigger this path
 - [[slice-spec]] — §8 schema-mismatch posture being reused here
+
+## Footnote — 2026-05-02 ASCII downgrade
+
+The toast text as ratified above contains an em-dash. Per [[2026-05-02-ascii-rule-overrides-copy-decisions]], the implementation in `godot/ui/hud/status_bar.gd` ships the ASCII substitute `"Save was corrupted -- beginning anew"` because Godot's HTML5 default font has no em-dash glyph. The em-dash form above is the canonical copy and becomes correct again if/when a custom font with em-dash coverage is bundled into the project theme.

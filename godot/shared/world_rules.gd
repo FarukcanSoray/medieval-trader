@@ -11,8 +11,7 @@ const TRAVEL_COST_PER_DISTANCE: int = 3
 
 # Wall-clock duration of one travel tick, in seconds. Drives TravelController's
 # per-step yield so a journey is perceptible rather than instant.
-# [needs playtesting] — kernel-tuning surface. Too short and travel feels free; too
-# long and the player drums their fingers waiting for arbitrage to resolve.
+# Validated 2026-05-02 via extended playtest.
 const TICK_DURATION_SECONDS: float = 0.45
 
 static func edge_cost(e: EdgeState) -> int:

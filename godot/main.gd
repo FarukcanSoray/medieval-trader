@@ -70,6 +70,11 @@ func _ready() -> void:
 	# captures the freshly-painted state instead of racing the boot-paint emits.
 	_travel_controller.resume_if_in_flight()
 
+	# Toast read last so its appearance can't race the boot-paint emits or the
+	# resume's first tick. One-shot consume — if no regen happened, this is a no-op.
+	if Game.consume_save_corruption_notice():
+		_status_bar.show_corruption_toast()
+
 func _on_travel_requested(to_id: String) -> void:
 	var from_id: String = Game.trader.location_node_id
 	var cost: int = _travel_controller.compute_cost(to_id)
