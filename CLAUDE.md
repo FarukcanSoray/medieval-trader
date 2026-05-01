@@ -32,6 +32,7 @@ Combat, procedural generation, and meta-progression are deliberately left open f
 - Target platforms: desktop + web export. Mobile is out.
 - No plugins, addons, or art/audio sources committed yet — Director and Architect will surface needs as they arise.
 - Web export is a hard target, not "if it works" — system and asset choices should respect HTML5 constraints from day one.
+- UI text strings stay ASCII-only (no `→`, em-dashes, fancy quotes, ellipses) until a custom font is bundled into the project theme. Godot's web export default font has no glyph coverage for these and renders them as tofu boxes. Use `->`, `--`, `"..."`, `...` instead.
 
 ## Workflow
 
