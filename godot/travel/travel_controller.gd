@@ -89,7 +89,6 @@ func _push_travel_history(to_id: String, cost: int) -> void:
 	var entry: HistoryEntry = HistoryEntry.new()
 	entry.tick = _world.tick
 	entry.kind = "travel"
-	# Unicode arrow reads cleanly in the death-screen ledger; ASCII would also work.
-	entry.detail = "%s→%s" % [_trader.travel.from_id, to_id]
+	entry.detail = "%s->%s" % [_trader.travel.from_id, to_id]
 	entry.delta_gold = -cost
 	_world.push_history(entry)

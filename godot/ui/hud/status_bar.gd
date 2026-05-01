@@ -30,7 +30,7 @@ func _refresh() -> void:
 	# Age display: ticks until Designer rules on years/ticks conversion.
 	_age_label.text = "Age: %d ticks" % trader.age_ticks
 	if trader.travel != null:
-		_location_label.text = "Travelling %s → %s (%d ticks left)" % [
+		_location_label.text = "Travelling %s -> %s (%d ticks left)" % [
 			trader.travel.from_id,
 			trader.travel.to_id,
 			trader.travel.ticks_remaining,

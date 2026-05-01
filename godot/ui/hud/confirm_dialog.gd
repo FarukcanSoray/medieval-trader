@@ -8,7 +8,7 @@ func prompt(from_id: String, to_id: String, cost: int, ticks: int) -> void:
 	# Slice invariant: ConfirmDialog is modal and ticks only advance during travel,
 	# so gold is stable while this dialog is open — predicate captured at prompt-time
 	# is sufficient. If the dialog is ever made non-modal, subscribe to gold_changed.
-	dialog_text = "Travel %s → %s. Cost: %dg. Time: %d ticks." % [
+	dialog_text = "Travel %s -> %s. Cost: %dg. Time: %d ticks." % [
 		from_id, to_id, cost, ticks,
 	]
 	var ok_button: Button = get_ok_button()

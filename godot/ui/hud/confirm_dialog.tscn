@@ -5,5 +5,5 @@
 [node name="ConfirmDialog" type="AcceptDialog"]
 title = "Confirm Travel"
 ok_button_text = "Travel"
-dialog_text = "Travel A → B. Cost: 0g. Time: 0 ticks."
+dialog_text = "Travel A -> B. Cost: 0g. Time: 0 ticks."
 script = ExtResource("1_confirm_dialog")
