@@ -24,6 +24,8 @@ Anything else — partial state, regenerated world, ghost gold, kept inventory w
 
 > **Caveat re: FM7 (tick desync).** Monotonic-tick enforcement was deferred to B2 by Director ruling. As a result, FM7 is now **partial harness coverage**: P5 catches negative ticks, but the harness does not enforce strict monotonicity across the boundary. Tick-consistency-with-branch is checked manually in §6 item 4.
 
+> **Caveat re: stuck-mid-travel.** Post-load `trader.travel != null` is a *valid* in-flight state — it is exactly half of pass criterion (A). The harness alone therefore cannot distinguish "correctly resumed and progressing" from "stuck because no resume seam exists." The tester **must verify the journey advances after resume** by observing `ticks_remaining` decrement on the next tick boundary (~450ms wall-clock per [[2026-05-01-tick-duration-450ms-first-pass]]). If `ticks_remaining` does not change within 1s post-load while `travel != null`, the slice is in the stuck-mid-travel mode (regression of [[2026-05-01-resume-travel-seam-in-main]]). Add this check to the §5 per-iteration protocol when the harness ships.
+
 ---
 
 ## 2. Step 0 — COOP/COEP verification

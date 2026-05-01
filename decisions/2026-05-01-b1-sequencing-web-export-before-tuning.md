@@ -34,8 +34,13 @@ High. Director and Critic agree on the sequencing; the disagreement was on frami
 - This session's Director verdict (first ruling on next-round candidates A/B/C).
 - This session's Critic pressure-test on Director's B → A ordering.
 
+## Footnote (2026-05-01)
+
+The **tick-duration subset of A** (the visible-travel-tick tuning) runs as a B1 *prerequisite*, not as part of A. The rest of A (drift %, travel-cost values, prices) still runs after B1. Reason: B1's manual runbook iterations require a refreshable mid-travel window, which a 12ms travel duration does not provide. See [[2026-05-01-tick-duration-450ms-first-pass]]. This is a sequencing refinement, not a reversal — the original "B-first prevents re-tuning" framing still applies to the rest of A.
+
 ## Related
 
 - [[2026-04-29-no-cuts-slice-first]] — slice-first stance; B1/B2 split is sequencing under that stance, not scope reduction
 - [[2026-04-30-tier7-deferred-followups]] — the three C items being split here
 - [[slice-spec]] — §6 tuning knobs that A operates against
+- [[2026-05-01-tick-duration-450ms-first-pass]] — the tick-duration subset of A that ran as a B1 prerequisite (per footnote)
