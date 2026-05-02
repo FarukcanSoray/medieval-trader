@@ -7,10 +7,6 @@ class_name WorldGen
 const DRIFT_FRACTION: float = 0.10
 
 const NODE_COUNT: int = 7
-# Margins keep nodes inside the visible map area; chosen against the slice-2
-# MapView coordinate space (1280x720 nominal viewport, HUD overlay clips top
-# 48px and the side panels span the outer columns).
-const POS_BOUNDS: Rect2 = Rect2(80, 60, 640, 380)
 const MIN_NODE_SPACING: float = 80.0
 const MAX_PLACEMENT_RETRIES_PER_NODE: int = 50
 const MAX_SEED_BUMPS: int = 5
@@ -33,10 +29,10 @@ const NAME_POOL: Array[String] = [
 	"Vellhorn", "Whitecliff", "Yarrowbridge", "Brindlemoor",
 ]
 
-static func generate(world_seed: int, goods: Array[Good]) -> WorldState:
+static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> WorldState:
 	for bump: int in range(MAX_SEED_BUMPS):
 		var effective_seed: int = world_seed + bump
-		var positions: Array[Vector2] = _place_positions(effective_seed)
+		var positions: Array[Vector2] = _place_positions(effective_seed, map_rect)
 		if positions.is_empty():
 			continue
 		var mst_edges: Array[Vector2i] = _build_mst(positions)
@@ -51,7 +47,7 @@ static func generate(world_seed: int, goods: Array[Good]) -> WorldState:
 		var edge_states: Array[EdgeState] = _materialize_edges(node_states, all_edges, positions)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
 		var world: WorldState = WorldState.new()
-		world.schema_version = 1
+		world.schema_version = 2
 		world.world_seed = effective_seed
 		world.tick = 0
 		world.nodes = node_states
@@ -66,16 +62,22 @@ static func generate(world_seed: int, goods: Array[Good]) -> WorldState:
 	assert(false, "worldgen: seed-bumps exhausted")
 	return null
 
-# Returns NODE_COUNT positions inside POS_BOUNDS, all pairwise >= MIN_NODE_SPACING.
-# Returns [] when any node hits the retry cap -- caller should bump the seed.
-static func _place_positions(effective_seed: int) -> Array[Vector2]:
+# Returns NODE_COUNT positions inside the inner-margin shrink of map_rect, all
+# pairwise >= MIN_NODE_SPACING. Returns [] when any node hits the retry cap --
+# caller should bump the seed.
+static func _place_positions(effective_seed: int, map_rect: Rect2) -> Array[Vector2]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = hash([effective_seed, "place"])
 	var positions: Array[Vector2] = []
-	var min_x: float = POS_BOUNDS.position.x
-	var max_x: float = POS_BOUNDS.end.x
-	var min_y: float = POS_BOUNDS.position.y
-	var max_y: float = POS_BOUNDS.end.y
+	# Inner-margin shrink: 16px top/left so node circles don't clip the panel
+	# border; right margin is NODE_RADIUS (16) + NAME_OFFSET.x (20) + max plausible
+	# name width (~60) so the rightmost node's name label stays inside the panel.
+	# Bottom margin is 16 (top) + 16 (radius) = 32.
+	var inner: Rect2 = Rect2(map_rect.position + Vector2(16, 16), map_rect.size - Vector2(96, 32))
+	var min_x: float = inner.position.x
+	var max_x: float = inner.end.x
+	var min_y: float = inner.position.y
+	var max_y: float = inner.end.y
 	var min_spacing_sq: float = MIN_NODE_SPACING * MIN_NODE_SPACING
 	for i: int in range(NODE_COUNT):
 		var placed: bool = false

@@ -4,7 +4,7 @@ extends Resource
 
 const HISTORY_CAP: int = 10
 
-@export var schema_version: int = 1
+@export var schema_version: int = 2
 @export var world_seed: int
 @export var tick: int
 @export var nodes: Array[NodeState]
@@ -113,7 +113,10 @@ static func from_dict(d: Dictionary) -> WorldState:
 	for key: String in REQUIRED_KEYS:
 		if not d.has(key):
 			return null
-	if int(d["schema_version"]) != 1:
+	# Slice-2 follow-up: bumped 1 -> 2 when WorldGen lost POS_BOUNDS and started
+	# placing positions inside MapPanel-local coordinates. Existing schema-1 saves
+	# carry stale viewport-space positions; route them through corruption-regen.
+	if int(d["schema_version"]) != 2:
 		return null
 	if not (d["nodes"] is Array) or not (d["edges"] is Array) or not (d["history"] is Array):
 		return null
@@ -162,7 +165,7 @@ static func from_dict(d: Dictionary) -> WorldState:
 			return null
 
 	var w: WorldState = WorldState.new()
-	w.schema_version = 1
+	w.schema_version = 2
 	w.world_seed = int(d["world_seed"])
 	w.tick = int(d["tick"])
 	w.nodes = nodes_typed

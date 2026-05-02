@@ -40,9 +40,15 @@ func _ready() -> void:
 	_death_service = DeathService.new()
 	_death_service.name = "DeathService"
 	add_child(_death_service)
-	bootstrap()
+	# Slice-2 follow-up: autoload no longer eager-bootstraps. Main is the sole
+	# normal caller and supplies the real MapPanel rect. The deferred sentinel
+	# below preserves the F6-isolated-scene contract (slice-spec §2.1) without
+	# racing Main's await — by the next idle frame, Main._ready has either
+	# completed bootstrap() (world != null guard no-ops the sentinel) or it
+	# isn't running at all (sentinel self-bootstraps with the fallback rect).
+	call_deferred("_f6_fallback_bootstrap_if_needed")
 
-func bootstrap(seed_override: int = -1) -> void:
+func bootstrap(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
 	# Three-state guard per Tier 7 Debugger: world != null (done) → return;
 	# _bootstrapping (in flight) → park on bootstrap_completed; else run body.
 	# Survives future awaits inserted before world assignment in load_or_init().
@@ -52,7 +58,14 @@ func bootstrap(seed_override: int = -1) -> void:
 		await bootstrap_completed
 		return
 	_bootstrapping = true
-	await _save_service.load_or_init(seed_override)
+	# Slice-2 follow-up: empty rect = autoload F6 path or other isolated callers;
+	# fall back so worldgen has a viable placement space. Warning at the entry
+	# point identifies which call site bypassed Main's panel-size read.
+	var effective_rect: Rect2 = map_rect
+	if effective_rect.size == Vector2.ZERO:
+		push_warning("bootstrap called with empty map_rect; falling back to default")
+		effective_rect = Rect2(0, 0, 640, 380)
+	await _save_service.load_or_init(seed_override, effective_rect)
 	# B1 invariant harness runs here, BEFORE _bootstrapping clears, so a
 	# corrupted dead-record can't reach Main._ready's death-screen branch.
 	# Per 2026-05-01-save-invariant-checker-harness-no-autoload this site is
@@ -73,7 +86,10 @@ func bootstrap(seed_override: int = -1) -> void:
 			# still observes the pending toast. Mirrors the defensive style of the
 			# three-state guard above ("survives future awaits inserted in load_or_init").
 			_save_corruption_notice_pending = true
-			await _save_service.wipe_and_regenerate()
+			# Preserve pre-slice-2-followup semantics: B1 harness wipe ignores
+			# --seed=N (the load path that just failed didn't consume it either).
+			# Pass effective_rect so the regen still places nodes in the live panel.
+			await _save_service.wipe_and_regenerate(-1, effective_rect)
 	# Clear flag before emit so awaiters wake to a consistent state, and so a
 	# future early-return inserted between here and emit doesn't strand them.
 	_bootstrapping = false
@@ -85,6 +101,25 @@ func consume_save_corruption_notice() -> bool:
 	var pending: bool = _save_corruption_notice_pending
 	_save_corruption_notice_pending = false
 	return pending
+
+# F6 entry: if main.tscn isn't running, no caller will provide a real MapPanel
+# rect. Self-bootstrap with the fallback so isolated scenes have a viable
+# Game.world to read. Main-driven boot has already awaited bootstrap() by this
+# idle frame; the world != null guard no-ops us.
+func _f6_fallback_bootstrap_if_needed() -> void:
+	# _bootstrapping guard removes the implicit ordering dependency on Main
+	# reaching its bootstrap() call before this idle frame fires. If a future
+	# Main inserts an `await get_tree().process_frame` ahead of bootstrap(),
+	# the world != null check would still see null and current_scene is Main
+	# would still return — but the dependency is implicit. Make it explicit.
+	if _bootstrapping:
+		return
+	if world != null:
+		return
+	var current: Node = get_tree().current_scene
+	if current is Main:
+		return
+	bootstrap()
 
 func _on_gold_changed(new_gold: int, delta: int) -> void:
 	gold_changed.emit(new_gold, delta)

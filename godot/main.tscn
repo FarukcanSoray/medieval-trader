@@ -18,9 +18,6 @@ _death_scene = ExtResource("10_death_screen")
 
 [node name="World" type="Node2D" parent="."]
 
-[node name="MapView" type="Node2D" parent="World"]
-script = ExtResource("11_map_view")
-
 [node name="TravelController" type="Node" parent="."]
 script = ExtResource("2_travel_controller")
 
@@ -36,6 +33,19 @@ script = ExtResource("5_trade")
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="StatusBar" parent="HUD" instance=ExtResource("9_status_bar")]
+
+[node name="MapPanel" type="Control" parent="HUD"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 436.0
+offset_top = 48.0
+offset_right = -376.0
+offset_bottom = -8.0
+mouse_filter = 2
+
+[node name="MapView" type="Node2D" parent="HUD/MapPanel"]
+script = ExtResource("11_map_view")
+_map_panel = NodePath("..")
 
 [node name="NodePanel" parent="HUD" instance=ExtResource("6_node_panel")]
 offset_left = 8.0

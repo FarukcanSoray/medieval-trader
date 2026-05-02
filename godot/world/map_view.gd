@@ -18,6 +18,13 @@ const NAME_FONT_SIZE: int = 14
 const NEIGHBOUR_OUTLINE_PADDING: float = 2.0
 const NEIGHBOUR_OUTLINE_SEGMENTS: int = 32
 
+# Wired in main.tscn to `..` (the parent MapPanel). Made explicit so the
+# map -> panel dependency is visible in the inspector rather than implicit
+# in the tree shape. Slice-2 has no per-frame readers; held for future use
+# (Control.resized hooks, hover hit-testing in panel-local coords).
+# TODO(slice-3): hover hit-testing will read panel-local size from this.
+@export var _map_panel: Control
+
 func _ready() -> void:
 	Game.tick_advanced.connect(_on_tick_advanced)
 	Game.state_dirty.connect(_on_state_dirty)

@@ -28,7 +28,11 @@ func _ready() -> void:
 
 	# Architect's canonical ordering — binding. No code between bootstrap() and
 	# the setup() calls; panels self-refresh on bootstrap-completion signals.
-	await Game.bootstrap(_parse_seed_override())
+	# MapPanel anchors are resolved during scene load (before _ready), so its
+	# size is non-zero by the time we read it. WorldGen places nodes in this
+	# panel-local space; MapView is parented to the panel and inherits transform.
+	var map_rect: Rect2 = Rect2(Vector2.ZERO, $HUD/MapPanel.size)
+	await Game.bootstrap(_parse_seed_override(), map_rect)
 	# Game.died only fires on the alive→dead transition; a dead-state boot never
 	# re-emits, so Main must branch to DeathScreen itself. No write_now() needed —
 	# the death write completed in the previous session via _on_died.

@@ -58,8 +58,12 @@ static func _check_travel_validity(trader: TraderState, world: WorldState) -> St
 	return ""
 
 static func _check_schema_version(world: WorldState) -> String:
-	if world.schema_version != 1:
-		return "world.schema_version (%d) != 1" % world.schema_version
+	# Slice-2 follow-up: bumped 1 -> 2 alongside WorldGen losing POS_BOUNDS.
+	# Schema-1 saves carry stale viewport-space positions; from_dict already
+	# rejects them, so this path only fires on a regen-fresh world that should
+	# always carry the current version.
+	if world.schema_version != 2:
+		return "world.schema_version (%d) != 2" % world.schema_version
 	return ""
 
 static func _check_death_consistency(trader: TraderState, world: WorldState) -> String:
