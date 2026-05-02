@@ -35,11 +35,15 @@ func apply_inventory_delta(good_id: String, qty: int, on_dirty: Callable) -> boo
 func to_dict() -> Dictionary:
 	var travel_dict: Variant = null
 	if travel != null:
+		var encounter_dict: Variant = null
+		if travel.encounter != null:
+			encounter_dict = travel.encounter.to_dict()
 		travel_dict = {
 			"from_id": travel.from_id,
 			"to_id": travel.to_id,
 			"ticks_remaining": travel.ticks_remaining,
 			"cost_paid": travel.cost_paid,
+			"encounter": encounter_dict,
 		}
 	var location_value: Variant = null
 	if location_node_id != "":
@@ -95,9 +99,20 @@ static func from_dict(d: Dictionary) -> TraderState:
 static func _travel_from_dict(d: Dictionary) -> TravelState:
 	if not d.has("from_id") or not d.has("to_id") or not d.has("ticks_remaining") or not d.has("cost_paid"):
 		return null
+	if not d.has("encounter"):
+		return null
+	var encounter_value: Variant = d["encounter"]
+	var encounter_resource: EncounterOutcome = null
+	if encounter_value != null:
+		if not (encounter_value is Dictionary):
+			return null
+		encounter_resource = EncounterOutcome.from_dict(encounter_value)
+		if encounter_resource == null:
+			return null
 	var ts: TravelState = TravelState.new()
 	ts.from_id = String(d["from_id"])
 	ts.to_id = String(d["to_id"])
 	ts.ticks_remaining = int(d["ticks_remaining"])
 	ts.cost_paid = int(d["cost_paid"])
+	ts.encounter = encounter_resource
 	return ts

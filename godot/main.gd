@@ -90,7 +90,13 @@ func _on_travel_requested(to_id: String) -> void:
 	_pending_travel_to = to_id
 	var from_name: String = Game.world.display_name_of(from_id)
 	var to_name: String = Game.world.display_name_of(to_id)
-	_confirm_dialog.prompt(from_name, to_name, cost, ticks)
+	var edge: EdgeState = _find_outbound_edge(from_id, to_id)
+	if edge != null and edge.is_bandit_road:
+		var loss_max: int = EncounterResolver.preview_loss_max(Game.trader.gold)
+		var prob_pct: int = roundi(WorldRules.BANDIT_ROAD_PROBABILITY * 100.0)
+		_confirm_dialog.prompt(from_name, to_name, cost, ticks, "bandit road", loss_max, prob_pct)
+	else:
+		_confirm_dialog.prompt(from_name, to_name, cost, ticks)
 
 func _on_travel_confirmed() -> void:
 	if _pending_travel_to == "":
@@ -144,6 +150,18 @@ func _distance_to(to_id: String) -> int:
 		if (edge.a_id == from_id and edge.b_id == to_id) or (edge.a_id == to_id and edge.b_id == from_id):
 			return edge.distance
 	return 0
+
+# Mirrors the undirected lookup pattern in _distance_to but returns the edge so
+# the cost-preview branch can read is_bandit_road. Returns null on no-match /
+# same-node so the caller falls through to the plain prompt.
+func _find_outbound_edge(from_id: String, to_id: String) -> EdgeState:
+	var world: WorldState = Game.world
+	if world == null or from_id == "" or to_id == "" or from_id == to_id:
+		return null
+	for edge: EdgeState in world.edges:
+		if (edge.a_id == from_id and edge.b_id == to_id) or (edge.a_id == to_id and edge.b_id == from_id):
+			return edge
+	return null
 
 # SaveService is a child of the Game autoload (slice-spec §5). game.gd does not
 # expose a typed accessor — it stores the reference as a private _save_service.

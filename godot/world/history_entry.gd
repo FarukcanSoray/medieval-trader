@@ -2,7 +2,7 @@
 class_name HistoryEntry
 extends Resource
 
-const KINDS: Array[String] = ["buy", "sell", "travel"]
+const KINDS: Array[String] = ["buy", "sell", "travel", "encounter"]
 
 @export var tick: int
 @export var kind: String

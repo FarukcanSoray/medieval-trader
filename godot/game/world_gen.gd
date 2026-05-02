@@ -49,6 +49,7 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 		# unsatisfiable: bump seed and retry, mirroring the placement-starves case.
 		if not _author_bias(effective_seed, node_states, edge_states, goods):
 			continue
+		_author_encounters(effective_seed, edge_states)
 		for node: NodeState in node_states:
 			node.prices = _seed_prices(effective_seed, node, goods)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
@@ -262,6 +263,16 @@ static func _solve_bias_range(good: Good, max_spread_gold: int) -> float:
 	var raw: float = headroom / float(good.base_price)
 	var envelope: float = WorldRules.BIAS_MAX - WorldRules.BIAS_MIN
 	return clampf(raw, 0.0, envelope)
+
+# Per-edge bandit-road tag. Pure-random with fixed fraction (spec §5.1); sub-seed
+# "encounters" is a sibling of "place"/"names"/"bias". Two-element shape doesn't
+# collide with the per-tick four-element [world_seed, tick, node_id, good_id] hash
+# or with the per-leg five-element [world_seed, tick, lo, hi, "encounter_roll"] hash.
+static func _author_encounters(effective_seed: int, edges: Array[EdgeState]) -> void:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = hash([effective_seed, "encounters"])
+	for edge: EdgeState in edges:
+		edge.is_bandit_road = (rng.randf() < WorldRules.BANDIT_ROAD_FRACTION)
 
 static func _shortest_edge_distance(edges: Array[EdgeState]) -> int:
 	assert(not edges.is_empty(), "worldgen: shortest-edge query on empty edge list")

@@ -3,7 +3,7 @@ class_name WorldState
 extends Resource
 
 const HISTORY_CAP: int = 10
-const SCHEMA_VERSION: int = 3
+const SCHEMA_VERSION: int = 4
 
 @export var schema_version: int = SCHEMA_VERSION
 @export var world_seed: int
@@ -99,6 +99,7 @@ func to_dict() -> Dictionary:
 			"a_id": e.a_id,
 			"b_id": e.b_id,
 			"distance": e.distance,
+			"is_bandit_road": e.is_bandit_road,
 		})
 	var history_array: Array = []
 	for h: HistoryEntry in history:
@@ -247,12 +248,13 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 	return n
 
 static func _edge_from_dict(d: Dictionary) -> EdgeState:
-	if not d.has("a_id") or not d.has("b_id") or not d.has("distance"):
+	if not d.has("a_id") or not d.has("b_id") or not d.has("distance") or not d.has("is_bandit_road"):
 		return null
 	var e: EdgeState = EdgeState.new()
 	e.a_id = String(d["a_id"])
 	e.b_id = String(d["b_id"])
 	e.distance = int(d["distance"])
+	e.is_bandit_road = bool(d["is_bandit_road"])
 	if not e.is_valid():
 		return null
 	return e
