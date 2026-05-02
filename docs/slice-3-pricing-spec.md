@@ -219,15 +219,17 @@ ASCII only. No tweens, no colour, no audio.
 
 ```
 Hillfarm
-  wool   8g   (source)
+  wool   8g   (plentiful)
   cloth 19g
 
 Rivertown
-  wool  16g   (sink)
+  wool  16g   (scarce)
   cloth 18g
 ```
 
-Tag syntax: `(source)` or `(sink)`. ASCII parens, lowercase, single word. **Not** `(wool +)` (cryptic) or `[wool source]` (square brackets read as UI controls). **Not** `wool: 8g (-3)` -- the bias number does **not** surface in the UI. Players read the tag, not the multiplier. Reasoning: the tag is the entire abstraction -- exposing the bias value invites the player to compute `base_price * (1 + bias)` themselves, which is one inferential step the slice doesn't earn. If playtesting shows the tag isn't legible enough, escalate to numbers in slice-3.x.
+Tag syntax: `(plentiful)` or `(scarce)`. ASCII parens, lowercase, single word. **Not** `(wool +)` (cryptic) or `[wool source]` (square brackets read as UI controls). **Not** `wool: 8g (-3)` -- the bias number does **not** surface in the UI. Players read the tag, not the multiplier. Reasoning: the tag is the entire abstraction -- exposing the bias value invites the player to compute `base_price * (1 + bias)` themselves, which is one inferential step the slice doesn't earn. If playtesting shows the tag isn't legible enough, escalate to numbers in slice-3.x.
+
+> **Spec correction (2026-05-02):** earlier draft used `(source)` / `(sink)`. First playtest showed those words didn't read; replaced with `(plentiful)` / `(scarce)`. Framework (ASCII, no numbers) unchanged. See [[2026-05-02-slice-3-hud-tags-plentiful-scarce]].
 
 **No tag** -- a node with neither produces nor consumes for a given good shows just `wool 12g` with no parens. This is normal; not every node is interesting in every good.
 

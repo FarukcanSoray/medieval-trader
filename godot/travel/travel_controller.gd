@@ -98,6 +98,9 @@ func _push_travel_history(to_id: String, cost: int) -> void:
 	var entry: HistoryEntry = HistoryEntry.new()
 	entry.tick = _world.tick
 	entry.kind = "travel"
-	entry.detail = "%s->%s" % [_trader.travel.from_id, to_id]
+	entry.detail = "%s->%s" % [
+		_world.display_name_of(_trader.travel.from_id),
+		_world.display_name_of(to_id),
+	]
 	entry.delta_gold = -cost
 	_world.push_history(entry)

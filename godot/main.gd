@@ -88,7 +88,9 @@ func _on_travel_requested(to_id: String) -> void:
 	if ticks <= 0:
 		return
 	_pending_travel_to = to_id
-	_confirm_dialog.prompt(from_id, to_id, cost, ticks)
+	var from_name: String = Game.world.display_name_of(from_id)
+	var to_name: String = Game.world.display_name_of(to_id)
+	_confirm_dialog.prompt(from_name, to_name, cost, ticks)
 
 func _on_travel_confirmed() -> void:
 	if _pending_travel_to == "":

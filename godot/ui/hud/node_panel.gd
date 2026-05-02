@@ -113,9 +113,9 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, force_disable
 	var price: int = int(node.prices.get(good.id, 0))
 	var tag: String = ""
 	if good.id in node.produces:
-		tag = " (source)"
+		tag = " (plentiful)"
 	elif good.id in node.consumes:
-		tag = " (sink)"
+		tag = " (scarce)"
 	price_label.text = "Price: %dg%s" % [price, tag]
 
 	if force_disabled:

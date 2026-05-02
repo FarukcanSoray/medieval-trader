@@ -28,6 +28,15 @@ func get_node_by_id(node_id: String) -> NodeState:
 			return n
 	return null
 
+## Player-facing label for node_id. Falls back to the raw id so a missing-node case
+## degrades visibly rather than silently. UI surfaces (confirm dialog, history detail)
+## must use this; raw ids are internal identity, not display text.
+func display_name_of(node_id: String) -> String:
+	var n: NodeState = get_node_by_id(node_id)
+	if n == null:
+		return node_id
+	return n.display_name
+
 ## Returns all edges incident to node_id (undirected). Empty id → empty array.
 func outbound_edges(node_id: String) -> Array[EdgeState]:
 	var result: Array[EdgeState] = []

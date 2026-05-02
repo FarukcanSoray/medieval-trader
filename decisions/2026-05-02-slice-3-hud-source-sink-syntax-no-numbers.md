@@ -1,9 +1,11 @@
 ---
 title: HUD shows tags as `(source)` / `(sink)`; bias number is not exposed
 date: 2026-05-02
-status: ratified
-tags: [decision, slice-3, hud-legibility, pedagogy]
+status: amended
+tags: [decision, slice-3, hud-legibility, pedagogy, amended]
 ---
+
+> **Amended 2026-05-02 same day:** the `(source)` / `(sink)` word choice was replaced with `(plentiful)` / `(scarce)` after first playtest -- see [[2026-05-02-slice-3-hud-tags-plentiful-scarce]]. The framework below (ASCII parens, lowercase single word, no exposed bias number) still holds; only the words changed.
 
 # HUD shows tags as `(source)` / `(sink)`; bias number is not exposed
 

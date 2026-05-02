@@ -67,7 +67,7 @@ func _build_row(to_id: String, world: WorldState) -> Control:
 	var name_label: Label = Label.new()
 	name_label.name = "NameLabel"
 	name_label.custom_minimum_size = Vector2(160, 0)
-	name_label.text = _node_display_name(to_id, world)
+	name_label.text = world.display_name_of(to_id)
 
 	var cost_label: Label = Label.new()
 	cost_label.name = "CostLabel"
@@ -104,12 +104,6 @@ func _neighbours_of(node_id: String, world: WorldState) -> Array[String]:
 		elif edge.b_id == node_id and not result.has(edge.a_id):
 			result.append(edge.a_id)
 	return result
-
-func _node_display_name(node_id: String, world: WorldState) -> String:
-	var node: NodeState = world.get_node_by_id(node_id)
-	if node == null:
-		return node_id
-	return node.display_name
 
 func _on_go_pressed(to_id: String) -> void:
 	travel_requested.emit(to_id)
