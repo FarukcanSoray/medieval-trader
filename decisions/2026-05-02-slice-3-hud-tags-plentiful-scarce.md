@@ -38,3 +38,15 @@ First playtest of slice-3 on 2026-05-02. User direction.
 - [[2026-05-02-slice-3-hud-source-sink-syntax-no-numbers]] -- prior decision this amends; framework (ASCII, no numbers) preserved
 - [[2026-05-02-slice-3-tags-as-label-not-driver]] -- still holds; tags are a label of bias, derivation unchanged
 - [[2026-05-02-slice-3-tags-in-slice]] -- prior decision noted "if playtest shows the tag isn't legible enough, escalate to numbers in slice-3.x"; this amendment is the lighter-weight option (better words instead of numbers)
+
+## Amendment 2026-05-02 (post-slice-4-playtest): tag/price visible inversion is intended
+
+During slice-4 playtest, user observed: `wool 10g (untagged)` and `wool 11g (plentiful)` simultaneously across two nodes. Asked whether this was a bug.
+
+**Verdict: not a bug; intended behaviour.** The tag reflects **structural identity** (the node's bias from `world_seed` -- think "this town has wool workshops / sheep / looms"). The displayed price is `anchor + drift`, where `anchor = base_price * (1 + bias)` and drift fluctuates each tick. The two can disagree at any single moment; over many ticks the plentiful node's wool averages lower than the untagged node's wool. Mean-reversion (`MEAN_REVERT_RATE = 0.10`) pulls drift back toward the anchor.
+
+**Fictional framing the user accepted:** "A plentiful town is a structural producer. Today's price might be high (bad shearing week, passing army buying cloaks) but it'll trend back down. The tag teaches you about the town's identity, not the moment's deal." This framing earns the visible-inversion behaviour as world-feels-alive rather than tag-lies.
+
+**Slice-3.x tuning option preserved (not invoked):** if a future playtest shows inversion happens too often and the player loses faith in the tag, the path is to lower wool's `volatility` (currently 0.10) or raise `WorldRules.MEAN_REVERT_RATE` (currently 0.10). The structural design holds; only the bias-vs-drift balance would tune.
+
+**Constraint surfaced for future tuning:** with the current free-lunch predicate, wool's bias range is clamped to ~`±0.17`, putting plentiful anchors at ~10-11g vs untagged at ~11-13g -- a ~1-2g structural gap, easily inverted by ~1g per-tick drift. Lowering volatility would simultaneously *widen* the bias headroom (the predicate would allow larger bias ranges) and *narrow* the drift envelope. Two-for-one.
