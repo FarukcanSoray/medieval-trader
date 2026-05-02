@@ -1,9 +1,12 @@
 ---
 title: Begin Anew confirm-handler order rule — null Game refs before await, change scene after
 date: 2026-05-01
-status: ratified
+status: superseded-in-part
+superseded_by: [2026-05-02-slice-2-followup-begin-anew-delete-save]
 tags: [decision, architecture, ordering, signals, slice-1]
 ---
+
+> **Note (2026-05-02):** Partially superseded by [[2026-05-02-slice-2-followup-begin-anew-delete-save]]. The "null Game refs BEFORE the disk op, change scene AFTER" ordering rule stays valid and is preserved exactly. The `await SaveService.wipe_and_regenerate()` between the null-refs and the scene change is replaced with synchronous `SaveService.delete_save()`; regeneration moves to the new Main scene's bootstrap, which has the real `MapPanel` rect.
 
 # Begin Anew order rule
 

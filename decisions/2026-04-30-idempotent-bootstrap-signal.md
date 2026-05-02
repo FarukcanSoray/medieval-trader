@@ -1,9 +1,12 @@
 ---
 title: Idempotent Game.bootstrap() via stashed bootstrap_completed signal
 date: 2026-04-30
-status: ratified
+status: superseded-in-part
+superseded_by: [2026-05-02-slice-2-followup-deferred-bootstrap-f6-sentinel]
 tags: [decision, architecture, autoload, async, lifecycle]
 ---
+
+> **Note (2026-05-02):** Partially superseded by [[2026-05-02-slice-2-followup-deferred-bootstrap-f6-sentinel]]. The three-state guard described below stays valid and load-bearing. The premise that `Game._ready()` calls `bootstrap()` un-awaited reverses -- the autoload no longer eager-bootstraps; Main is the sole normal caller and an F6 sentinel covers the editor isolated-scene path. Alternative (b) below ("Drop `bootstrap()` from `Game._ready()`, make Main the sole caller") is now picked, with the F6 sentinel covering the contract that originally rejected it.
 
 # Idempotent Game.bootstrap() via stashed bootstrap_completed signal
 

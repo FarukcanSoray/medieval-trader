@@ -2,8 +2,11 @@
 title: Slice-2 no schema bump; trigger condition for future bumps named
 date: 2026-05-02
 status: ratified
+amended_by: [2026-05-02-slice-2-followup-schema-bump-semantic-reinterpretation]
 tags: [decision, save-system, slice-2, schema]
 ---
+
+> **Amendment (2026-05-02 follow-up):** [[2026-05-02-slice-2-followup-schema-bump-semantic-reinterpretation]] extends the trigger condition to also cover *any semantic reinterpretation of an existing field where existing saves' values would be wrong in the new world*. The original "new required field" rule and "stays-without-bump" examples below remain valid; the amendment adds a second clause.
 
 # Slice-2 no schema bump; trigger condition for future bumps named
 

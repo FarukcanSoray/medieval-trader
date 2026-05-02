@@ -3,6 +3,9 @@ name: Deploy to itch.io
 on:
   push:
     branches: [main]
+    paths:
+      - 'godot/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 env:
