@@ -1,11 +1,6 @@
-## Per-tick price drift: applies the §5 formula against current node prices.
+## Per-tick price drift: applies the slice-3 §5.4 biased-anchor + mean-revert formula.
 class_name PriceModel
 extends Node
-
-# Per-tick drift fraction. Slice-spec §6 calls for 5%-15%; 10% is the midpoint.
-# [needs playtesting] — independent of WorldGen.DRIFT_FRACTION; the tick-0 init drift
-# and per-tick drift are separately tunable as the slice plays.
-const DRIFT_FRACTION: float = 0.10
 
 var _world: WorldState
 
@@ -20,25 +15,28 @@ func _on_tick_advanced(new_tick: int) -> void:
 		return
 	for node: NodeState in _world.nodes:
 		_drift_node_prices(node, new_tick)
-	# Mutating prices is persistent state — emit dirty so SaveService picks it up
+	# Mutating prices is persistent state -- emit dirty so SaveService picks it up
 	# on the same tick boundary it's about to coalesce on.
 	Game.emit_state_dirty.call()
 
 func _drift_node_prices(node: NodeState, tick: int) -> void:
 	for good_id: String in node.prices.keys():
-		# §5: same hash schema as WorldGen._seed_price — (world_seed, tick, node_id, good_id).
-		# RNG-per-draw mirrors WorldGen; at slice scale (7 nodes × 2 goods = 14 allocs/tick,
-		# only on player-driven travel ticks) the alloc cost is negligible.
-		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-		rng.seed = hash([_world.world_seed, tick, node.id, good_id])
-		var drift_sample: float = rng.randf_range(-DRIFT_FRACTION, DRIFT_FRACTION)
-		# §5: drift compounds — old_price is the CURRENT price, not good.base_price.
-		var old_price: int = int(node.prices[good_id])
-		var drifted: int = old_price + roundi(drift_sample * old_price)
 		var good: Good = _find_good(good_id)
 		if good == null:
 			continue
-		node.prices[good_id] = clampi(drifted, good.floor_price, good.ceiling_price)
+		assert(good.volatility > 0.0, "pricing: good '%s' has zero volatility" % good_id)
+		assert(node.bias.has(good_id), "pricing: node '%s' missing bias for good '%s'" % [node.id, good_id])
+		# §5.4: hash([world_seed, tick, node_id, good_id]) -- determinism contract;
+		# byte-identical to slice-2. Do not reorder, do not add salts.
+		# RNG-per-draw mirrors WorldGen; at slice scale (7 nodes x 2 goods = 14
+		# allocs/tick on player-driven ticks only) the alloc cost is negligible.
+		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+		rng.seed = hash([_world.world_seed, tick, node.id, good_id])
+		var anchor: int = roundi(good.base_price * (1.0 + node.bias[good_id]))
+		var delta: int = roundi(rng.randf_range(-good.volatility, good.volatility) * anchor)
+		var old_price: int = int(node.prices[good_id])
+		var mean_revert: int = roundi((anchor - old_price) * WorldRules.MEAN_REVERT_RATE)
+		node.prices[good_id] = clampi(old_price + delta + mean_revert, good.floor_price, good.ceiling_price)
 
 func _find_good(good_id: String) -> Good:
 	for g: Good in Game.goods:

@@ -3,7 +3,7 @@ class_name WorldState
 extends Resource
 
 const HISTORY_CAP: int = 10
-const SCHEMA_VERSION: int = 2
+const SCHEMA_VERSION: int = 3
 
 @export var schema_version: int = SCHEMA_VERSION
 @export var world_seed: int
@@ -66,11 +66,23 @@ func to_dict() -> Dictionary:
 		var prices_dict: Dictionary = {}
 		for good_id: String in n.prices.keys():
 			prices_dict[good_id] = int(n.prices[good_id])
+		var bias_dict: Dictionary = {}
+		for good_id: String in n.bias.keys():
+			bias_dict[good_id] = float(n.bias[good_id])
+		var produces_array: Array = []
+		for good_id: String in n.produces:
+			produces_array.append(good_id)
+		var consumes_array: Array = []
+		for good_id: String in n.consumes:
+			consumes_array.append(good_id)
 		nodes_array.append({
 			"id": n.id,
 			"name": n.display_name,
 			"pos": [n.pos.x, n.pos.y],
 			"prices": prices_dict,
+			"bias": bias_dict,
+			"produces": produces_array,
+			"consumes": consumes_array,
 		})
 	var edges_array: Array = []
 	for e: EdgeState in edges:
@@ -177,6 +189,8 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 	# Wire format uses "name" (per slice-spec §3); in-memory field is `display_name`.
 	if not d.has("id") or not d.has("name") or not d.has("pos") or not d.has("prices"):
 		return null
+	if not d.has("bias") or not d.has("produces") or not d.has("consumes"):
+		return null
 	var pos_value: Variant = d["pos"]
 	if not (pos_value is Array):
 		return null
@@ -190,11 +204,37 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 	var prices_typed: Dictionary[String, int] = {}
 	for good_id: Variant in prices_dict.keys():
 		prices_typed[String(good_id)] = int(prices_dict[good_id])
+	var bias_value: Variant = d["bias"]
+	if not (bias_value is Dictionary):
+		return null
+	var bias_dict: Dictionary = bias_value
+	var bias_typed: Dictionary[String, float] = {}
+	for good_id: Variant in bias_dict.keys():
+		bias_typed[String(good_id)] = float(bias_dict[good_id])
+	var produces_value: Variant = d["produces"]
+	if not (produces_value is Array):
+		return null
+	var produces_typed: Array[String] = []
+	for raw: Variant in (produces_value as Array):
+		if not (raw is String):
+			return null
+		produces_typed.append(raw)
+	var consumes_value: Variant = d["consumes"]
+	if not (consumes_value is Array):
+		return null
+	var consumes_typed: Array[String] = []
+	for raw: Variant in (consumes_value as Array):
+		if not (raw is String):
+			return null
+		consumes_typed.append(raw)
 	var n: NodeState = NodeState.new()
 	n.id = String(d["id"])
 	n.display_name = String(d["name"])
 	n.pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
 	n.prices = prices_typed
+	n.bias = bias_typed
+	n.produces = produces_typed
+	n.consumes = consumes_typed
 	return n
 
 static func _edge_from_dict(d: Dictionary) -> EdgeState:

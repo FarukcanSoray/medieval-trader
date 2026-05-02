@@ -1,10 +1,6 @@
-## Procgen world: places NODE_COUNT points, builds an MST + extra edges, names them, seeds tick-0 prices.
-## Uses a seed-bump retry loop when placement starves; the bumped seed becomes the canonical world_seed.
+## Procgen world: places NODE_COUNT points, builds an MST + extra edges, names them, authors per-good bias, seeds tick-0 prices.
+## Uses a seed-bump retry loop when placement starves or bias generation fails the free-lunch predicate; the bumped seed becomes the canonical world_seed.
 class_name WorldGen
-
-# Tick-0 drift fraction. Slice-spec §6 calls for 5%-15%; 10% is the midpoint.
-# [needs playtesting] -- tier-5 PriceModel will own this knob in its own file.
-const DRIFT_FRACTION: float = 0.10
 
 const NODE_COUNT: int = 7
 const MIN_NODE_SPACING: float = 80.0
@@ -12,7 +8,10 @@ const MAX_PLACEMENT_RETRIES_PER_NODE: int = 50
 const MAX_SEED_BUMPS: int = 5
 const EXTRA_EDGE_COUNT: int = 2
 const DISTANCE_DIVISOR: float = 50.0
-const MIN_EDGE_DISTANCE: int = 2
+# Pulled forward from slice-3.x carryover (2026-05-02-slice-2-5-free-lunch-deferred-to-pricing-slice).
+# Floor of 3 makes the bias predicate satisfiable on every generated graph
+# (verified via tools/measure_bias_aborts.gd: 70% abort rate at floor=2; ~0% at floor=3).
+const MIN_EDGE_DISTANCE: int = 3
 
 # 40 medieval-fantasy ASCII names; first 16 Designer-authored, remaining 24 in
 # the same village/town/city register. No apostrophes, no numerals, no diacritics.
@@ -43,8 +42,15 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 		# JSON. Reproducibility wins -- a saved world should be replayable from
 		# the seed it actually used. Prices use effective_seed for the same
 		# reason: internally consistent, no "original vs effective" footgun.
-		var node_states: Array[NodeState] = _materialize_nodes(positions, names, effective_seed, goods)
+		var node_states: Array[NodeState] = _materialize_nodes_unpriced(positions, names)
 		var edge_states: Array[EdgeState] = _materialize_edges(node_states, all_edges, positions)
+		# Bias must be authored after edges (predicate reads shortest edge) but
+		# before prices (seed-price formula reads bias). Soft-fail on free-lunch
+		# unsatisfiable: bump seed and retry, mirroring the placement-starves case.
+		if not _author_bias(effective_seed, node_states, edge_states, goods):
+			continue
+		for node: NodeState in node_states:
+			node.prices = _seed_prices(effective_seed, node, goods)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
 		var world: WorldState = WorldState.new()
 		world.schema_version = WorldState.SCHEMA_VERSION
@@ -178,32 +184,92 @@ static func _assign_names(effective_seed: int) -> Array[String]:
 		picked.append(pool[i])
 	return picked
 
-static func _materialize_nodes(positions: Array[Vector2], names: Array[String], effective_seed: int, goods: Array[Good]) -> Array[NodeState]:
-	# `effective_seed` is the canonical world_seed stored in JSON.
-	# Prices reuse it so reload determinism holds: hash([effective_seed, 0, node_id, good.id])
-	# matches whatever PriceModel will read from world.world_seed at tick 1.
+static func _materialize_nodes_unpriced(positions: Array[Vector2], names: Array[String]) -> Array[NodeState]:
+	# Bias and prices are populated by later pipeline stages; this stage only
+	# fixes identity, name, and position so _author_bias has a node list to
+	# iterate without yet committing to good-keyed dicts.
 	var nodes: Array[NodeState] = []
 	for i: int in range(NODE_COUNT):
 		var node: NodeState = NodeState.new()
 		node.id = "node_%d" % i
 		node.display_name = names[i]
 		node.pos = positions[i]
-		node.prices = _seed_prices(effective_seed, node.id, goods)
 		nodes.append(node)
 	return nodes
 
-# Mirrors slice-1 _seed_price contract: hash([world_seed, 0, node_id, good.id]),
-# uniform drift in [-DRIFT_FRACTION, +DRIFT_FRACTION], clamped to good bounds.
-static func _seed_prices(effective_seed: int, node_id: String, goods: Array[Good]) -> Dictionary[String, int]:
+# Tick-0 seed: anchor the price at the biased anchor and apply one drift sample.
+# Mirrors the per-tick formula's centring (anchor not base_price), with no
+# mean-reversion term because there is no prior old_price -- the seed IS the
+# starting point. Seed namespace hash([effective_seed, 0, node_id, good.id])
+# preserved so PriceModel determinism replays byte-identically post-load.
+static func _seed_prices(effective_seed: int, node: NodeState, goods: Array[Good]) -> Dictionary[String, int]:
 	var prices: Dictionary[String, int] = {}
 	for good: Good in goods:
+		assert(good.volatility > 0.0, "worldgen: good '%s' has zero volatility" % good.id)
+		assert(node.bias.has(good.id), "worldgen: node '%s' missing bias for good '%s'" % [node.id, good.id])
 		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-		rng.seed = hash([effective_seed, 0, node_id, good.id])
-		var drift_sample: float = rng.randf_range(-DRIFT_FRACTION, DRIFT_FRACTION)
-		var old_price: int = good.base_price
-		var drifted: int = old_price + roundi(drift_sample * old_price)
-		prices[good.id] = clampi(drifted, good.floor_price, good.ceiling_price)
+		rng.seed = hash([effective_seed, 0, node.id, good.id])
+		var anchor: int = roundi(good.base_price * (1.0 + node.bias[good.id]))
+		var delta: int = roundi(rng.randf_range(-good.volatility, good.volatility) * anchor)
+		prices[good.id] = clampi(anchor + delta, good.floor_price, good.ceiling_price)
 	return prices
+
+# Authors per-good per-node bias under the free-lunch predicate (spec §5.5).
+# Returns false when the predicate cannot be satisfied with allowed_range >=
+# MIN_BIAS_RANGE for any good -- caller bumps the seed and retries. Sub-seed
+# namespace "bias" is sibling to "place"/"names"; it must not collide with the
+# per-tick PriceModel hash([world_seed, tick, node_id, good_id]).
+static func _author_bias(effective_seed: int, nodes: Array[NodeState], edges: Array[EdgeState], goods: Array[Good]) -> bool:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = hash([effective_seed, "bias"])
+	var min_edge_distance: int = _shortest_edge_distance(edges)
+	var max_spread_gold: int = min_edge_distance * WorldRules.TRAVEL_COST_PER_DISTANCE
+	var allowed_ranges: Dictionary[String, float] = {}
+	for good: Good in goods:
+		var allowed_range: float = _solve_bias_range(good, max_spread_gold)
+		if allowed_range < WorldRules.MIN_BIAS_RANGE:
+			return false
+		allowed_ranges[good.id] = allowed_range
+		var half: float = allowed_range / 2.0
+		for node: NodeState in nodes:
+			node.bias[good.id] = rng.randf_range(-half, half)
+	# Tag derivation: produces/consumes are immutable post-gen labels (spec §5.6).
+	for good: Good in goods:
+		var allowed_range: float = allowed_ranges[good.id]
+		var producer_threshold: float = -WorldRules.PRODUCER_THRESHOLD_FRACTION * (allowed_range / 2.0)
+		var consumer_threshold: float = WorldRules.CONSUMER_THRESHOLD_FRACTION * (allowed_range / 2.0)
+		for node: NodeState in nodes:
+			var b: float = node.bias[good.id]
+			if b <= producer_threshold:
+				node.produces.append(good.id)
+			elif b >= consumer_threshold:
+				node.consumes.append(good.id)
+	for good: Good in goods:
+		for node: NodeState in nodes:
+			assert(not (node.produces.has(good.id) and node.consumes.has(good.id)),
+					"bias: node '%s' both produces and consumes good '%s'" % [node.id, good.id])
+	return true
+
+# Maximum range R such that R * base_price + 2 * volatility * ceiling_price
+# < max_spread_gold (spec §5.5). Clamped to [0.0, BIAS_MAX - BIAS_MIN].
+static func _solve_bias_range(good: Good, max_spread_gold: int) -> float:
+	assert(good.volatility > 0.0, "worldgen: good '%s' has zero volatility" % good.id)
+	assert(good.base_price > 0, "worldgen: good '%s' has non-positive base_price" % good.id)
+	var volatility_term: float = 2.0 * good.volatility * float(good.ceiling_price)
+	var headroom: float = float(max_spread_gold) - volatility_term
+	if headroom <= 0.0:
+		return 0.0
+	var raw: float = headroom / float(good.base_price)
+	var envelope: float = WorldRules.BIAS_MAX - WorldRules.BIAS_MIN
+	return clampf(raw, 0.0, envelope)
+
+static func _shortest_edge_distance(edges: Array[EdgeState]) -> int:
+	assert(not edges.is_empty(), "worldgen: shortest-edge query on empty edge list")
+	var shortest: int = edges[0].distance
+	for e: EdgeState in edges:
+		if e.distance < shortest:
+			shortest = e.distance
+	return shortest
 
 static func _materialize_edges(nodes: Array[NodeState], pairs: Array[Vector2i], positions: Array[Vector2]) -> Array[EdgeState]:
 	var edges: Array[EdgeState] = []

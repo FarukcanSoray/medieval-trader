@@ -14,5 +14,13 @@ const TRAVEL_COST_PER_DISTANCE: int = 3
 # Validated 2026-05-02 via extended playtest.
 const TICK_DURATION_SECONDS: float = 0.45
 
+# Slice-3 pricing constants. See docs/slice-3-pricing-spec.md §6.
+const MEAN_REVERT_RATE: float = 0.10
+const BIAS_MIN: float = -0.40
+const BIAS_MAX: float = 0.40
+const MIN_BIAS_RANGE: float = 0.20
+const PRODUCER_THRESHOLD_FRACTION: float = 0.5
+const CONSUMER_THRESHOLD_FRACTION: float = 0.5
+
 static func edge_cost(e: EdgeState) -> int:
 	return e.distance * TRAVEL_COST_PER_DISTANCE

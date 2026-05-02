@@ -7,3 +7,4 @@ extends Resource
 @export var base_price: int
 @export var floor_price: int
 @export var ceiling_price: int
+@export var volatility: float

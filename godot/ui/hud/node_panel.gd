@@ -111,7 +111,12 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, force_disable
 		return
 
 	var price: int = int(node.prices.get(good.id, 0))
-	price_label.text = "Price: %dg" % price
+	var tag: String = ""
+	if good.id in node.produces:
+		tag = " (source)"
+	elif good.id in node.consumes:
+		tag = " (sink)"
+	price_label.text = "Price: %dg%s" % [price, tag]
 
 	if force_disabled:
 		buy_button.disabled = true
