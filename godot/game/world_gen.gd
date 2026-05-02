@@ -47,7 +47,7 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 		var edge_states: Array[EdgeState] = _materialize_edges(node_states, all_edges, positions)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
 		var world: WorldState = WorldState.new()
-		world.schema_version = 2
+		world.schema_version = WorldState.SCHEMA_VERSION
 		world.world_seed = effective_seed
 		world.tick = 0
 		world.nodes = node_states

@@ -104,15 +104,9 @@ func _on_begin_anew_canceled() -> void:
 	_begin_anew_button.disabled = false
 
 func _on_begin_anew_confirmed() -> void:
-	# Order rule: null Game refs BEFORE the disk op, change scene AFTER.
-	# Subscribers don't observe a populated dead world during the swap.
-	# delete-save is synchronous; the new Main scene runs bootstrap() with its
-	# real MapPanel rect on _ready, so no regen happens here -- this avoids the
-	# previous race where the autoload wiped with a fallback rect before Main
-	# could supply a real one. See decision 2026-05-01-begin-anew-order-rule
-	# (the "null refs before disk op, change scene after" half still binds; the
-	# wipe_and_regenerate await is superseded by the deferred-world bootstrap
-	# structural fix).
+	# Null refs before disk op, change scene after — subscribers never observe a
+	# populated dead world during the swap. The new Main supplies the real
+	# MapPanel rect via its own bootstrap(); regen does not happen here.
 	assert(Game.world != null and Game.trader != null, "Begin Anew confirmed in null-world state")
 	var save_service: SaveService = _save_service()
 	assert(save_service != null, "SaveService missing from Game tree")

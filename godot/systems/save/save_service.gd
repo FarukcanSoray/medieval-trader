@@ -3,11 +3,9 @@ class_name SaveService
 extends Node
 
 const SAVE_PATH: String = "user://save.json"
-# Fallback rect used when callers (e.g. game.gd autoload F6, death_screen Begin
-# Anew) drive a regen without a live MapPanel to read sizing from. Matches the
-# previous slice-2 POS_BOUNDS extent so node placement stays within bounds even
-# under fallback.
-const _FALLBACK_MAP_RECT: Rect2 = Rect2(0, 0, 640, 380)
+# Last-line-of-defense rect for callers that bypass Main's panel-size read.
+# Public so Game.bootstrap can share the canonical fallback.
+const FALLBACK_MAP_RECT: Rect2 = Rect2(0, 0, 640, 380)
 
 var _dirty: bool = false
 var _warn_once_no_save: bool = false
@@ -73,15 +71,8 @@ func load_or_init(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
 	var world_loaded: WorldState = WorldState.from_dict(world_data)
 	var trader_loaded: TraderState = TraderState.from_dict(trader_value)
 	if world_loaded == null or trader_loaded == null:
-		# §5 strict-reject: any structural corruption regenerates the world.
-		# Slice-2: corruption-regen is a "generating a new world" path, so it
-		# DOES consume seed_override -- consistent with the no-save-exists branch
-		# above. The "loaded save wins" rule means: if we got past from_dict and
-		# the load succeeded, we'd return at line 70-71 without ever consuming
-		# seed_override. We only fall through here when the load itself failed.
-		# Schema mismatch (e.g. schema-1 -> schema-2 bump) lands here via from_dict
-		# returning null; from the player's perspective this is structural corruption,
-		# so the toast must fire on next UI boot.
+		# §5 strict-reject. Regen consumes seed_override since the load failed
+		# (loaded-save-wins only applies when from_dict succeeded above).
 		push_warning("Save rejected: structural corruption — regenerating world.")
 		Game._save_corruption_notice_pending = true
 		_generate_fresh(seed_override, map_rect)
@@ -135,17 +126,13 @@ func wipe_and_regenerate(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> 
 	_dirty = false
 
 func _generate_fresh(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
-	# Slice-2: --seed=N from cmdline override is plumbed here. Negative means
-	# "no override"; fall back to wall-clock seed (slice-1 default).
+	# Negative seed_override means no override; fall back to wall-clock.
 	var world_seed: int = seed_override if seed_override >= 0 else int(Time.get_unix_time_from_system())
-	# Slice-2 follow-up: map_rect tells WorldGen the panel-local coordinate space
-	# to place nodes in. Empty rect = caller bypassed bootstrap (the public-API
-	# entry point that substitutes its own fallback first); warn and substitute
-	# here too as a last line of defense.
+	# Empty rect means the caller bypassed bootstrap; substitute as last line of defense.
 	var effective_rect: Rect2 = map_rect
 	if effective_rect.size == Vector2.ZERO:
 		push_warning("_generate_fresh called with empty map_rect; falling back to default")
-		effective_rect = _FALLBACK_MAP_RECT
+		effective_rect = FALLBACK_MAP_RECT
 	Game.world = WorldGen.generate(world_seed, Game.goods, effective_rect)
 	var t: TraderState = TraderState.new()
 	# [needs playtesting] starting gold; §6 range is 50-150.

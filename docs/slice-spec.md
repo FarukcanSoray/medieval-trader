@@ -22,7 +22,7 @@ Single JSON blob, written via `FileAccess` to `user://save.json`. On HTML5, Godo
 
 ```
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "world_seed": <int>,
   "tick": <int>,
   "trader": {

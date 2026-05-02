@@ -107,7 +107,7 @@ After the canvas reaches main menu / in-game UI:
 3. **Apply harness predicates [P1–P6].** These are checked automatically by the harness; tester only confirms which ones flagged in the browser console. The expected predicates, in order, are:
    - **P1 — Mutex.** Exactly one of `trader.travel`, `trader.location_node_id != ""` is set. Catches **FM5** (limbo: trader is simultaneously in-travel and at a node, or neither).
    - **P2 — Travel state validity.** If `trader.travel != null`: `from_id` and `to_id` both exist in `world.nodes`, the edge between them exists, `0 < ticks_remaining ≤ edge.distance`, and `cost_paid ≥ 0`. Catches **FM6** (phantom travel: travel record points at non-existent nodes/edges or has impossible counters).
-   - **P3 — Schema version.** `world.schema_version == 1`. Catches **FM11** (silent schema bump: save loaded under a version mismatch the migration layer didn't trip).
+   - **P3 — Schema version.** `world.schema_version == WorldState.SCHEMA_VERSION`. Catches **FM11** (silent schema bump: save loaded under a version mismatch the migration layer didn't trip).
    - **P4 — Death-state consistency.** If `world.dead == true`: `world.death != null`, `trader.gold == world.death.final_gold`, and `world.death.cause` is non-empty. Catches **FM12** (death-state injection: dead flag without a coherent death record, or final_gold drift between trader and death record).
    - **P5 — Non-negative integers, no zero-quantity inventory.** All ints non-negative (`gold`, `age_ticks`, `tick`, every `inventory[good]`, every `nodes[].prices[good]`); `inventory` contains no keys whose value is zero. Catches **FM7 partial** — negatives only. Tick-consistency aspects of FM7 are handled in §6 item 4.
    - **P6 — History integrity.** `history.size() ≤ 10` AND every `node_id` referenced in any `history[].detail` (parsed from arrow-form strings like `"hillfarm->rivertown"`) resolves in `world.nodes`. Catches **FM8** (history referential integrity + history cap exceeded).
@@ -164,7 +164,7 @@ The harness build prints one line per predicate to the JS console after every wo
 ```
 [B1 harness] PASS P1
 [B1 harness] PASS P2
-[B1 harness] FAIL P3: schema_version == 2, expected 1
+[B1 harness] FAIL P3: schema_version == 99, expected 2
 ...
 ```
 

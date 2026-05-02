@@ -31,21 +31,15 @@ func _ready() -> void:
 	]
 	emit_gold_changed = _on_gold_changed
 	emit_state_dirty = _on_state_dirty
-	# SaveService first: it's the architectural primary and owns the boot path.
-	# DeathService second: only listens to gold_changed, no ordering dependency,
-	# but the primary-then-subscriber sequence is the convention.
 	_save_service = SaveService.new()
 	_save_service.name = "SaveService"
 	add_child(_save_service)
 	_death_service = DeathService.new()
 	_death_service.name = "DeathService"
 	add_child(_death_service)
-	# Slice-2 follow-up: autoload no longer eager-bootstraps. Main is the sole
-	# normal caller and supplies the real MapPanel rect. The deferred sentinel
-	# below preserves the F6-isolated-scene contract (slice-spec §2.1) without
-	# racing Main's await — by the next idle frame, Main._ready has either
-	# completed bootstrap() (world != null guard no-ops the sentinel) or it
-	# isn't running at all (sentinel self-bootstraps with the fallback rect).
+	# Defer to next idle frame: Main supplies the real MapPanel rect and races
+	# us via its own bootstrap() await. F6-isolated scenes have no Main, so the
+	# sentinel self-bootstraps with the fallback rect.
 	call_deferred("_f6_fallback_bootstrap_if_needed")
 
 func bootstrap(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
@@ -58,13 +52,11 @@ func bootstrap(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
 		await bootstrap_completed
 		return
 	_bootstrapping = true
-	# Slice-2 follow-up: empty rect = autoload F6 path or other isolated callers;
-	# fall back so worldgen has a viable placement space. Warning at the entry
-	# point identifies which call site bypassed Main's panel-size read.
+	# Empty rect = F6 or other isolated callers that bypassed Main's panel read.
 	var effective_rect: Rect2 = map_rect
 	if effective_rect.size == Vector2.ZERO:
 		push_warning("bootstrap called with empty map_rect; falling back to default")
-		effective_rect = Rect2(0, 0, 640, 380)
+		effective_rect = SaveService.FALLBACK_MAP_RECT
 	await _save_service.load_or_init(seed_override, effective_rect)
 	# B1 invariant harness runs here, BEFORE _bootstrapping clears, so a
 	# corrupted dead-record can't reach Main._ready's death-screen branch.

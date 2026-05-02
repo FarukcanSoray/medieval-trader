@@ -145,7 +145,7 @@ Fields: `from_id: String`, `to_id: String`, `ticks_remaining: int`, `cost_paid: 
 Lives at `godot/world/world_state.gd`. Held as `@export var world: WorldState` on `Game`. Same reasoning as `TraderState`.
 
 Fields:
-- `@export var schema_version: int = 1`
+- `@export var schema_version: int = SCHEMA_VERSION` (currently 2)
 - `@export var world_seed: int`
 - `@export var tick: int`
 - `@export var nodes: Array[NodeState]` (3 entries in slice)
@@ -189,7 +189,7 @@ This satisfies the idioms skill's "dependencies flow inward, no `get_node('../..
 
 | Event | Trigger | Behaviour |
 |---|---|---|
-| **Boot** | `Game._ready()` | `SaveService.load_or_init()` — try `FileAccess.open("user://save.json", READ)`. On success, parse, validate `schema_version == 1`, populate `Game.trader` and `Game.world`. On any failure (missing, schema mismatch, parse error), call `WorldGen.generate_new(seed)` and write the result immediately. |
+| **Boot** | `Game._ready()` | `SaveService.load_or_init()` — try `FileAccess.open("user://save.json", READ)`. On success, parse, validate `schema_version == WorldState.SCHEMA_VERSION`, populate `Game.trader` and `Game.world`. On any failure (missing, schema mismatch, parse error), call `WorldGen.generate_new(seed)` and write the result immediately. |
 | **Tick boundary** | `Game.tick_advanced` | `SaveService` checks a `_dirty: bool` flag (set by `state_dirty`); if dirty, writes and clears flag. **Coalesced** per §9 — multiple `state_dirty` between ticks become one write. |
 | **State mutation between ticks** | `Game.state_dirty` | Sets `_dirty = true`. Does **not** write. |
 | **Quit** | `Main._notification(NOTIFICATION_WM_CLOSE_REQUEST)` | Calls `SaveService.write_now()` synchronously, then `get_tree().quit()`. |
@@ -287,7 +287,7 @@ Files to create, in dependency order. Each entry: `class_name`, `extends`, key e
    - `apply_gold_delta(amount: int, on_changed: Callable, on_dirty: Callable) -> bool`
    - `apply_inventory_delta(good_id: String, qty: int, on_dirty: Callable) -> bool`
    - `to_dict() -> Dictionary` / `static func from_dict(d: Dictionary) -> TraderState`
-8. **`godot/world/world_state.gd`** — `class_name WorldState extends Resource`. Exports: `schema_version: int = 1`, `world_seed: int`, `tick: int`, `nodes: Array[NodeState]`, `edges: Array[EdgeState]`, `history: Array[HistoryEntry]` (ring-buffer cap 10), `dead: bool`, `death: DeathRecord` (nullable). Methods: `to_dict()`, `from_dict()`, `push_history(entry: HistoryEntry)` (handles ring buffer cap).
+8. **`godot/world/world_state.gd`** — `class_name WorldState extends Resource`. Const `SCHEMA_VERSION` (currently 2). Exports: `schema_version: int = SCHEMA_VERSION`, `world_seed: int`, `tick: int`, `nodes: Array[NodeState]`, `edges: Array[EdgeState]`, `history: Array[HistoryEntry]` (ring-buffer cap 10), `dead: bool`, `death: DeathRecord` (nullable). Methods: `to_dict()`, `from_dict()`, `push_history(entry: HistoryEntry)` (handles ring buffer cap).
 
 ### Tier 2 — World generation
 
