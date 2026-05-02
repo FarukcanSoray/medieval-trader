@@ -41,3 +41,9 @@ desktop.ini
 *.swo
 *.bak
 *.orig
+
+# Local-only dev tooling (machine-specific paths)
+tools/survey.ps1
+
+# Survey runtime artifacts (regenerated per run)
+slice-2-5-survey.log
