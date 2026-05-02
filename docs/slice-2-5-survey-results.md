@@ -1,53 +1,15 @@
 # Slice-2.5 Survey Results
 
-> Companion to [[slice-2-5-survey-protocol]]. Fill rows as you go. Raw stdout is captured separately in `slice-2-5-survey.log` at repo root.
+> **Status: closed without execution.** See [[2026-05-02-slice-2-5-close-via-entropy-default]].
 
-**Run started:** `<date>`
-**Run finished:** `<date>`
-**Seeds chosen:** 1..20 (or list other range used)
+The survey was not run. Slice-2.5 closed via the protocol's §4 entropy default after Director-vs-Critic deliberation on whether to substitute a headless automation tool for the eyeball pass. Critic's read prevailed: building a tool to gather data to maybe-ratify a threshold the protocol already tells you to default-decline is scope creep. No rejection predicates were added to `world_gen.gd`.
 
-## Rows
+Per-thread verdicts:
 
-Defaults: `hub-y? = n`, `free-lunch suspect? = n` unless you would argue both sides for 30+ seconds (then `borderline`).
+- **Hub-and-spoke -- Accept entropy.** [[2026-05-02-slice-2-5-hub-accept-entropy]]
+- **Planarity -- Accept entropy.** [[2026-05-02-slice-2-5-planarity-accept-entropy]]
+- **Free-lunch -- Deferred to pricing slice (owe-note operative).** [[2026-05-02-slice-2-5-free-lunch-deferred-to-pricing-slice]]
 
-| seed | nodes/edges | min/max edge | hub-y? | free-lunch suspect? | notes |
-|---|---|---|---|---|---|
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
+Tooling proposal preserved for slice-3+ pickup if a felt degeneracy ever justifies distribution data: [[2026-05-02-slice-2-5-survey-automation-deferred]].
 
-## Tally (fill after row 20)
-
-- `hub-y? = y`: ___ / 20
-- `hub-y? = borderline`: ___ / 20
-- `free-lunch suspect? = y`: ___ / 20
-- `free-lunch suspect? = borderline`: ___ / 20
-- Effective-seed bumps fired: ___ / 20
-- Low node count flagged: ___ / 20
-- Other notes flagged: ___ / 20
-
-## First-pass impressions (your gut, before Director/Critic ratify)
-
-- Hub-and-spoke:
-- Free-lunch:
-- Planarity:
-- Other patterns you saw:
-
-Then hand off to ratification (task #4 in the slice-2.5 task list).
+The protocol document [[slice-2-5-survey-protocol]] is left intact -- it remains the reference for what the survey *would* have done, and a future slice can re-invoke it (eyeball or automated) on the same terms.
