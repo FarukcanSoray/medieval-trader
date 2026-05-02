@@ -10,14 +10,17 @@ func prompt(from_name: String, to_name: String, cost: int, ticks: int,
 	# Slice invariant: ConfirmDialog is modal and ticks only advance during travel,
 	# so gold is stable while this dialog is open — predicate captured at prompt-time
 	# is sufficient. If the dialog is ever made non-modal, subscribe to gold_changed.
+	# Format is debug-style (raw probability + loss cap exposed). See
+	# [[2026-05-02-slice-4-cost-preview-with-expected-loss-hint]] amendment:
+	# polish-pass owes a player-friendly version that hides the percentages.
+	var base_line: String = "Travel %s -> %s. Cost: %dg. Time: %d ticks." % [
+		from_name, to_name, cost, ticks,
+	]
 	if encounter_label == "":
-		dialog_text = "Travel %s -> %s. Cost: %dg. Time: %d ticks." % [
-			from_name, to_name, cost, ticks,
-		]
+		dialog_text = base_line
 	else:
-		dialog_text = "Travel %s -> %s. Cost: %dg (+0..%dg, %s, ~%d%%). Time: %d ticks." % [
-			from_name, to_name, cost, encounter_loss_max,
-			encounter_label, encounter_probability_pct, ticks,
+		dialog_text = "%s\n%s: %d%% chance to lose up to %dg." % [
+			base_line, encounter_label.capitalize(), encounter_probability_pct, encounter_loss_max,
 		]
 	var ok_button: Button = get_ok_button()
 	if ok_button != null:

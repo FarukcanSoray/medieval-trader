@@ -35,6 +35,20 @@ High. Critic-flagged, Designer-spec'd, Architect-implemented.
 ## Source
 Critic stress-test verdict; Designer spec §5.5; Architect Call 3 (signature ratification).
 
+## Amendment 2026-05-02 (post-playtest)
+
+First playtest signal: the compressed format `(+0..30g, bandit road, ~30%)` was unparseable on first sight. The numeric components had no labels (`~30%` of what? `+0..30g` of what?) so the player couldn't decode them without explanation.
+
+**New format (two-line, with labels):**
+```
+Travel Hillfarm -> Rivertown. Cost: 12g. Time: 4 ticks.
+Bandit road: 30% chance to lose up to 30g.
+```
+
+The Pillar 1 protection is preserved -- numbers still surface, expected cost is still computable -- but each clause now reads as a self-contained sentence.
+
+**User stance on detail level:** the raw probability and loss cap are intentionally visible at this stage. The player technically shouldn't see this much developer-facing detail, but exposing the values now serves slice-4 playtest. **Polish-pass owes a player-friendly version** that hides the percentages and presents the risk in narrative terms (e.g., "Risky route: bandits sometimes take a share of your purse"). Logged for the future "beautifying the game" pass; not slice-4.x scope, not slice-5 scope -- a polish-pass concern that lives below the current slice cadence.
+
 ## Related
 - [[2026-05-02-slice-4-bandit-roads-telegraphed]] — the categorical tag this decision adds numbers to
 - [[2026-05-02-slice-3-hud-source-sink-syntax-no-numbers]] — slice-3's tags-without-numbers stance, contrasted: slice-3 had a visible underlying observable (price), slice-4 doesn't

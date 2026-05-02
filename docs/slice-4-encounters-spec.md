@@ -168,7 +168,12 @@ The cost-preview hint surfaces base cost, the loss range, the route tag, and the
 
 **Plain edge:** `Travel Hillfarm -> Rivertown. Cost: 12g. Time: 4 ticks.`
 
-**Bandit edge:** `Travel Hillfarm -> Rivertown. Cost: 12g (+0..6g, bandit road, ~30%). Time: 4 ticks.`
+**Bandit edge** (post-playtest amendment, two-line):
+```
+Travel Hillfarm -> Rivertown. Cost: 12g. Time: 4 ticks.
+Bandit road: 30% chance to lose up to 6g.
+```
+> **Spec amendment 2026-05-02:** earlier draft used the compressed one-line `(+0..6g, bandit road, ~30%)` form. First playtest showed the numeric components were unparseable without labels. Replaced with two-line labelled format. See [[2026-05-02-slice-4-cost-preview-with-expected-loss-hint]] amendment for the player-facing polish-pass owe-note.
 
 Wording rules:
 - `Cost: 12g` is the deterministic base cost; the player always pays this on confirm. The `(...)` is the *additional* expected variability.
