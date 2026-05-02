@@ -28,7 +28,7 @@ func _drift_node_prices(node: NodeState, tick: int) -> void:
 		assert(node.bias.has(good_id), "pricing: node '%s' missing bias for good '%s'" % [node.id, good_id])
 		# §5.4: hash([world_seed, tick, node_id, good_id]) -- determinism contract;
 		# byte-identical to slice-2. Do not reorder, do not add salts.
-		# RNG-per-draw mirrors WorldGen; at slice scale (7 nodes x 2 goods = 14
+		# RNG-per-draw mirrors WorldGen; at slice scale (7 nodes x 3 goods = 21
 		# allocs/tick on player-driven ticks only) the alloc cost is negligible.
 		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 		rng.seed = hash([_world.world_seed, tick, node.id, good_id])

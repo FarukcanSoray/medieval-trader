@@ -69,6 +69,70 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 	assert(false, "worldgen: seed-bumps exhausted")
 	return null
 
+# True iff `world` was generated against a smaller goods set than `all_goods` --
+# the typical "slice-N save loaded onto slice-N+1 build" case. Probes
+# `nodes[0].bias` only because `_author_bias` writes every (node, good) pair
+# atomically: if the good is missing on node 0, it is missing on every node.
+# Empty-nodes case returns false; that path is for from_dict failures, not
+# forward-port.
+static func needs_goods_forward_port(world: WorldState, all_goods: Array[Good]) -> bool:
+	if world.nodes.is_empty():
+		return false
+	var bias_keys: Dictionary[String, float] = world.nodes[0].bias
+	for good: Good in all_goods:
+		if not bias_keys.has(good.id):
+			return true
+	return false
+
+# Re-seeds bias and tick-0 prices for goods missing from the loaded world, in
+# place. Reuses world.world_seed so the forward-ported values are byte-identical
+# to a fresh-gen save at the same seed. Returns false if the predicate fails for
+# the new goods on the saved topology (rare -- caller falls through to corruption
+# regen). Existing keys in bias / prices / produces / consumes are preserved;
+# `_author_bias` and `_seed_prices` only iterate the goods passed in, so they
+# write only the missing-good keys. Correctness depends on `missing` excluding
+# any good already authored on the world: `_author_bias` appends to
+# `node.produces` / `node.consumes` rather than overwriting, so re-passing an
+# already-authored good would double-tag it. The `bias_keys.has(good.id)` filter
+# below is the load-bearing exclusion.
+static func forward_port_goods(world: WorldState, all_goods: Array[Good]) -> bool:
+	var missing: Array[Good] = []
+	if not world.nodes.is_empty():
+		var bias_keys: Dictionary[String, float] = world.nodes[0].bias
+		for good: Good in all_goods:
+			if not bias_keys.has(good.id):
+				missing.append(good)
+	if missing.is_empty():
+		return true
+	if not _author_bias(world.world_seed, world.nodes, world.edges, missing):
+		return false
+	for node: NodeState in world.nodes:
+		var seeded: Dictionary[String, int] = _seed_prices(world.world_seed, node, missing)
+		for good_id: String in seeded.keys():
+			node.prices[good_id] = seeded[good_id]
+	return true
+
+# Public diagnostic helper for tools/measure_bias_aborts.gd. Reproduces the
+# placement+edge half of `generate` for a given effective_seed and returns the
+# topology's shortest edge distance, without authoring bias or seeding prices.
+# Returns -1 if placement starves (the same condition under which `generate`
+# bumps the seed for placement reasons rather than predicate reasons).
+# Slice-5 §7: needed so the bias-abort tool can sample the per-good
+# allowed_range histogram on the *exhausted* topology when `generate` returns
+# null -- the histogram is the load-bearing diagnostic for "which good drove
+# the aborts" and aborts contributed nothing to it before this helper existed.
+static func compute_topology_min_edge_distance(effective_seed: int, map_rect: Rect2) -> int:
+	var positions: Array[Vector2] = _place_positions(effective_seed, map_rect)
+	if positions.is_empty():
+		return -1
+	var mst_edges: Array[Vector2i] = _build_mst(positions)
+	var extra_edges: Array[Vector2i] = _add_extra_edges(positions, mst_edges)
+	var all_edges: Array[Vector2i] = mst_edges + extra_edges
+	var names: Array[String] = _assign_names(effective_seed)
+	var node_states: Array[NodeState] = _materialize_nodes_unpriced(positions, names)
+	var edge_states: Array[EdgeState] = _materialize_edges(node_states, all_edges, positions)
+	return _shortest_edge_distance(edge_states)
+
 # Returns NODE_COUNT positions inside the inner-margin shrink of map_rect, all
 # pairwise >= MIN_NODE_SPACING. Returns [] when any node hits the retry cap --
 # caller should bump the seed.

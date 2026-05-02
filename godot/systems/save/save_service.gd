@@ -79,6 +79,21 @@ func load_or_init(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
 		await write_now()
 		return
 
+	# Slice-5: forward-port saves authored against a smaller goods catalogue.
+	# Re-seeds bias + tick-0 prices for any good in Game.goods missing from the
+	# loaded world (typical: slice-4 wool/cloth-only save loaded onto slice-5
+	# build). Predicate fail on the saved topology is treated as corruption --
+	# rare in practice (the saved seed already passed the predicate at the
+	# original N), but still strict-rejected so we never present a half-authored
+	# world to the player.
+	if WorldGen.needs_goods_forward_port(world_loaded, Game.goods):
+		if not WorldGen.forward_port_goods(world_loaded, Game.goods):
+			push_warning("Save rejected: forward-port predicate fail — regenerating world.")
+			Game._save_corruption_notice_pending = true
+			_generate_fresh(seed_override, map_rect)
+			await write_now()
+			return
+
 	Game.world = world_loaded
 	Game.trader = trader_loaded
 

@@ -28,6 +28,7 @@ func _ready() -> void:
 	goods = [
 		preload("res://goods/wool.tres") as Good,
 		preload("res://goods/cloth.tres") as Good,
+		preload("res://goods/salt.tres") as Good,
 	]
 	emit_gold_changed = _on_gold_changed
 	emit_state_dirty = _on_state_dirty
