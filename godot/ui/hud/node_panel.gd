@@ -104,7 +104,10 @@ func _build_rows() -> void:
 
 		var price_label: Label = Label.new()
 		price_label.name = "PriceLabel"
-		price_label.custom_minimum_size = Vector2(96, 0)
+		# Slice-7 §8.1: widened from 96 to 160 to fit "[N left]" plus the
+		# longest tag " (plentiful)" without truncating. Web export's default
+		# font has wider digits than the editor preview suggests.
+		price_label.custom_minimum_size = Vector2(160, 0)
 
 		var owned_label: Label = Label.new()
 		owned_label.name = "OwnedLabel"
@@ -155,7 +158,12 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, current_load:
 		tag = " (plentiful)"
 	elif good.id in node.consumes:
 		tag = " (scarce)"
-	price_label.text = "Price: %dg%s" % [price, tag]
+	# Slice-7 §8.1: append "[N left]" to the price line. Reads through the
+	# WorldState.stock_for accessor so the per-node dict layout stays
+	# isolated. Game.world is non-null on this branch -- we already checked
+	# trader/world above and node != null.
+	var stock: int = Game.world.stock_for(node.id, good.id)
+	price_label.text = "Price: %dg%s [%d left]" % [price, tag, stock]
 
 	if force_disabled:
 		buy_button.disabled = true
@@ -166,20 +174,36 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, current_load:
 	# Slice-6 §3 / §8.2: predicates evaluated here per slice rule -- never on
 	# click. fits_in_cart mirrors Trade.try_buy's defensive gate so the UI and
 	# runtime predicates stay aligned (the warning fires if they ever diverge).
+	# Slice-7: in_stock joins the predicate triplet -- the buy button is
+	# enabled only when all three gates clear.
 	var affordable: bool = price > 0 and trader.gold >= price
 	var fits_in_cart: bool = current_load + good.weight <= WorldRules.CARGO_CAPACITY
-	buy_button.disabled = not affordable or not fits_in_cart
-	buy_button.tooltip_text = _buy_tooltip(price, trader.gold, good.weight, current_load, affordable, fits_in_cart)
+	var in_stock: bool = stock > 0
+	buy_button.disabled = not affordable or not fits_in_cart or not in_stock
+	buy_button.tooltip_text = _buy_tooltip(price, trader.gold, good.weight, current_load, affordable, fits_in_cart, in_stock)
 	sell_button.disabled = owned <= 0
 
-# Slice-6 §8.2: four-case tooltip. Empty string when the buy is permitted; the
-# refusal string names the binding constraint(s). ASCII only -- no arrows, no
-# em-dashes (CLAUDE.md project rule).
-func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, affordable: bool, fits_in_cart: bool) -> String:
-	if affordable and fits_in_cart:
+# Slice-7 §8.2: eight-case tooltip. Stock-out leads in priority because it is
+# the most informative refusal (cart and gold can change at this node; stock
+# can only come back via travel). Empty string when the buy is permitted; the
+# refusal string names every binding constraint. ASCII only -- no arrows, no
+# em-dashes (CLAUDE.md project rule). Single ASCII semicolon between phrases
+# when stock chains with cart/gold.
+func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, affordable: bool, fits_in_cart: bool, in_stock: bool) -> String:
+	if affordable and fits_in_cart and in_stock:
 		return ""
 	var gold_short: int = price - gold
 	var space_short: int = weight - (WorldRules.CARGO_CAPACITY - current_load)
+	# Stock-out branches first (priority order: stock, cart, gold per spec §8.2).
+	if not in_stock:
+		if not affordable and not fits_in_cart:
+			return "out of stock; need %dg and %d more cart space" % [gold_short, space_short]
+		if not affordable:
+			return "out of stock; need %dg more" % gold_short
+		if not fits_in_cart:
+			return "out of stock; need %d more cart space" % space_short
+		return "out of stock"
+	# Stock OK; carry forward the slice-6 four-case shape unchanged.
 	if not affordable and not fits_in_cart:
 		return "Need %dg and %d more cart space" % [gold_short, space_short]
 	if not affordable:

@@ -11,3 +11,5 @@ floor_price = 3
 ceiling_price = 14
 volatility = 0.13
 weight = 2
+base_stock_cap = 4
+base_refill_rate = 0.2

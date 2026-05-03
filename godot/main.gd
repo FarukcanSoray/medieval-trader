@@ -10,6 +10,7 @@ extends Node
 
 @onready var _travel_controller: TravelController = $TravelController
 @onready var _price_model: PriceModel = $PriceModel
+@onready var _stock_system: StockSystem = $StockSystem
 @onready var _aging: Aging = $Aging
 @onready var _trade: Trade = $Trade
 @onready var _node_panel: NodePanel = $HUD/NodePanel
@@ -42,6 +43,7 @@ func _ready() -> void:
 		return
 	_travel_controller.setup(Game.trader, Game.world)
 	_price_model.setup(Game.world)
+	_stock_system.setup(Game.world)
 	_aging.setup(Game.trader)
 	_trade.setup(Game.trader, Game.world)
 	_travel_panel.setup(_travel_controller)

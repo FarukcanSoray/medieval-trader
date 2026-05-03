@@ -7,6 +7,12 @@ extends Resource
 @export var location_node_id: String
 @export var travel: TravelState
 @export var inventory: Dictionary[String, int]
+# Slice-7 §5.2: per-trader cargo capacity. Coalesced into the slice-7 schema
+# bump (v4 -> v5) per the slice-6.1 carryover. Existing call sites still read
+# WorldRules.CARGO_CAPACITY (the constant remains the seed); this field is the
+# storage seam for a future cart-upgrade slice. v4 saves migrate to the
+# constant value via TraderState._migrate_v4_to_v5.
+@export var cargo_capacity: int = 60
 
 func apply_gold_delta(amount: int, on_changed: Callable, on_dirty: Callable) -> bool:
 	var new_gold: int = gold + amount
@@ -57,12 +63,18 @@ func to_dict() -> Dictionary:
 		"location_node_id": location_value,
 		"travel": travel_dict,
 		"inventory": inventory_dict,
+		"cargo_capacity": cargo_capacity,
 	}
 
 ## Strict reject: returns null on any structural corruption per slice-spec §8.
 static func from_dict(d: Dictionary) -> TraderState:
+	# Slice-7 schema v5 introduces cargo_capacity. Migrate v4 dicts in place
+	# before the REQUIRED_KEYS check so cargo_capacity is always present after
+	# this point. The trigger is the field's absence -- TraderState's wire
+	# format does not carry its own schema_version; WorldState owns that.
+	d = _migrate_v4_to_v5(d)
 	const REQUIRED_KEYS: Array[String] = [
-		"gold", "age_ticks", "location_node_id", "travel", "inventory",
+		"gold", "age_ticks", "location_node_id", "travel", "inventory", "cargo_capacity",
 	]
 	for key: String in REQUIRED_KEYS:
 		if not d.has(key):
@@ -94,7 +106,16 @@ static func from_dict(d: Dictionary) -> TraderState:
 	t.location_node_id = "" if loc_value == null else String(loc_value)
 	t.travel = travel_resource
 	t.inventory = inv_typed
+	t.cargo_capacity = int(d["cargo_capacity"])
 	return t
+
+## Slice-7 v4 -> v5 migration. Detected by the absence of "cargo_capacity" --
+## v4 trader dicts lack the field. Defaults to WorldRules.CARGO_CAPACITY (the
+## slice-6 constant), preserving observed behaviour for v4 saves. See spec §5.2.
+static func _migrate_v4_to_v5(d: Dictionary) -> Dictionary:
+	if not d.has("cargo_capacity"):
+		d["cargo_capacity"] = WorldRules.CARGO_CAPACITY
+	return d
 
 static func _travel_from_dict(d: Dictionary) -> TravelState:
 	if not d.has("from_id") or not d.has("to_id") or not d.has("ticks_remaining") or not d.has("cost_paid"):

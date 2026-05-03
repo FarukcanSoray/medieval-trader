@@ -1,0 +1,557 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3568, cap_bound_pairs=3568, multi_good_when_cap_bound=1006
+skipped_worldgen=0, skipped_no_profit=6032
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 28.2%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 28.2% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3545, cap_bound_pairs=3545, multi_good_when_cap_bound=1042
+skipped_worldgen=0, skipped_no_profit=6055
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 29.4%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 29.4% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3545, cap_bound_pairs=3545, multi_good_when_cap_bound=1042
+skipped_worldgen=0, skipped_no_profit=6055
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 29.4%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 29.4% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3608, cap_bound_pairs=3608, multi_good_when_cap_bound=949
+skipped_worldgen=0, skipped_no_profit=5992
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 26.3%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 26.3% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3572, cap_bound_pairs=3572, multi_good_when_cap_bound=1013
+skipped_worldgen=0, skipped_no_profit=6028
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 28.4%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 28.4% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3570, cap_bound_pairs=3570, multi_good_when_cap_bound=1017
+skipped_worldgen=0, skipped_no_profit=6030
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 28.5%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 28.5% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3645, cap_bound_pairs=3634, multi_good_when_cap_bound=873
+skipped_worldgen=0, skipped_no_profit=5955
+
+cap_binding rate: 99.7%   [gate 1 floor: >= 20%]
+  (of 99.7% cap-bound, multi-good fraction: 24.0%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.7%, multi-good 24.0% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3583, cap_bound_pairs=3582, multi_good_when_cap_bound=996
+skipped_worldgen=0, skipped_no_profit=6017
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 27.8%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 27.8% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3601, cap_bound_pairs=3601, multi_good_when_cap_bound=976
+skipped_worldgen=0, skipped_no_profit=5999
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 27.1%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 27.1% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3674, cap_bound_pairs=3623, multi_good_when_cap_bound=825
+skipped_worldgen=0, skipped_no_profit=5926
+
+cap_binding rate: 98.6%   [gate 1 floor: >= 20%]
+  (of 98.6% cap-bound, multi-good fraction: 22.8%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 98.6%, multi-good 22.8% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3646, cap_bound_pairs=3632, multi_good_when_cap_bound=888
+skipped_worldgen=0, skipped_no_profit=5954
+
+cap_binding rate: 99.6%   [gate 1 floor: >= 20%]
+  (of 99.6% cap-bound, multi-good fraction: 24.4%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 99.6% >= 20%: PASS; gate 2 multi-good 24.4% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=2.5, neutral=0.5, scarce=0.1), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=3667, cap_bound_pairs=3656, multi_good_when_cap_bound=863
+skipped_worldgen=0, skipped_no_profit=5933
+
+cap_binding rate: 99.7%   [gate 1 floor: >= 20%]
+  (of 99.7% cap-bound, multi-good fraction: 23.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.7%, multi-good 23.6% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6241, multi_good_when_cap_bound=2683
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.0%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 43.0% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6241, multi_good_when_cap_bound=2711
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.4%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 43.4% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6241, multi_good_when_cap_bound=2711
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.4%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 43.4% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6237, multi_good_when_cap_bound=2649
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 99.9%   [gate 1 floor: >= 20%]
+  (of 99.9% cap-bound, multi-good fraction: 42.5%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.9%, multi-good 42.5% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6241, multi_good_when_cap_bound=2679
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 42.9%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 42.9% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6241, multi_good_when_cap_bound=2692
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.1%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 43.1% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6217, multi_good_when_cap_bound=2579
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 99.6%   [gate 1 floor: >= 20%]
+  (of 99.6% cap-bound, multi-good fraction: 41.5%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.6%, multi-good 41.5% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6237, multi_good_when_cap_bound=2661
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 99.9%   [gate 1 floor: >= 20%]
+  (of 99.9% cap-bound, multi-good fraction: 42.7%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 99.9% >= 20%: PASS; gate 2 multi-good 42.7% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6239, multi_good_when_cap_bound=2657
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 42.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 42.6% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6158, multi_good_when_cap_bound=2503
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 98.7%   [gate 1 floor: >= 20%]
+  (of 98.7% cap-bound, multi-good fraction: 40.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 98.7%, multi-good 40.6% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6195, multi_good_when_cap_bound=2566
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 99.3%   [gate 1 floor: >= 20%]
+  (of 99.3% cap-bound, multi-good fraction: 41.4%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 99.3% >= 20%: PASS; gate 2 multi-good 41.4% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=5.0, neutral=1.0, scarce=0.2), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6241, cap_bound_pairs=6206, multi_good_when_cap_bound=2572
+skipped_worldgen=0, skipped_no_profit=3359
+
+cap_binding rate: 99.4%   [gate 1 floor: >= 20%]
+  (of 99.4% cap-bound, multi-good fraction: 41.4%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.4%, multi-good 41.4% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6248, cap_bound_pairs=6248, multi_good_when_cap_bound=2764
+skipped_worldgen=0, skipped_no_profit=3352
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 44.2%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 44.2% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6243, multi_good_when_cap_bound=2739
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.9%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 43.9% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6243, multi_good_when_cap_bound=2736
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 43.8%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 43.8% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6249, cap_bound_pairs=6242, multi_good_when_cap_bound=2786
+skipped_worldgen=0, skipped_no_profit=3351
+
+cap_binding rate: 99.9%   [gate 1 floor: >= 20%]
+  (of 99.9% cap-bound, multi-good fraction: 44.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.9%, multi-good 44.6% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6242, multi_good_when_cap_bound=2752
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 44.1%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 44.1% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6242, multi_good_when_cap_bound=2752
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 44.1%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 44.1% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6249, cap_bound_pairs=6208, multi_good_when_cap_bound=2771
+skipped_worldgen=0, skipped_no_profit=3351
+
+cap_binding rate: 99.3%   [gate 1 floor: >= 20%]
+  (of 99.3% cap-bound, multi-good fraction: 44.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.3%, multi-good 44.6% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6233, multi_good_when_cap_bound=2782
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 99.8%   [gate 1 floor: >= 20%]
+  (of 99.8% cap-bound, multi-good fraction: 44.6%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 99.8% >= 20%: PASS; gate 2 multi-good 44.6% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6234, multi_good_when_cap_bound=2778
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 99.9%   [gate 1 floor: >= 20%]
+  (of 99.9% cap-bound, multi-good fraction: 44.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.9%, multi-good 44.6% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6249, cap_bound_pairs=6107, multi_good_when_cap_bound=2681
+skipped_worldgen=0, skipped_no_profit=3351
+
+cap_binding rate: 97.7%   [gate 1 floor: >= 20%]
+  (of 97.7% cap-bound, multi-good fraction: 43.9%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 97.7%, multi-good 43.9% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6150, multi_good_when_cap_bound=2691
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 98.5%   [gate 1 floor: >= 20%]
+  (of 98.5% cap-bound, multi-good fraction: 43.8%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 98.5% >= 20%: PASS; gate 2 multi-good 43.8% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=8.0, neutral=1.5, scarce=0.4), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=6243, cap_bound_pairs=6166, multi_good_when_cap_bound=2714
+skipped_worldgen=0, skipped_no_profit=3357
+
+cap_binding rate: 98.8%   [gate 1 floor: >= 20%]
+  (of 98.8% cap-bound, multi-good fraction: 44.0%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 98.8%, multi-good 44.0% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7191, cap_bound_pairs=7189, multi_good_when_cap_bound=3854
+skipped_worldgen=0, skipped_no_profit=2409
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 53.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 53.6% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7186, multi_good_when_cap_bound=3860
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 53.7%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 53.7% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=2.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7186, multi_good_when_cap_bound=3857
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 53.7%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 53.7% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7192, cap_bound_pairs=7171, multi_good_when_cap_bound=3810
+skipped_worldgen=0, skipped_no_profit=2408
+
+cap_binding rate: 99.7%   [gate 1 floor: >= 20%]
+  (of 99.7% cap-bound, multi-good fraction: 53.1%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.7%, multi-good 53.1% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7183, multi_good_when_cap_bound=3825
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 53.3%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 100.0% >= 20%: PASS; gate 2 multi-good 53.3% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=4.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7183, multi_good_when_cap_bound=3839
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 100.0%   [gate 1 floor: >= 20%]
+  (of 100.0% cap-bound, multi-good fraction: 53.4%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 100.0%, multi-good 53.4% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7192, cap_bound_pairs=7124, multi_good_when_cap_bound=3711
+skipped_worldgen=0, skipped_no_profit=2408
+
+cap_binding rate: 99.1%   [gate 1 floor: >= 20%]
+  (of 99.1% cap-bound, multi-good fraction: 52.1%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.1%, multi-good 52.1% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7155, multi_good_when_cap_bound=3813
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 99.6%   [gate 1 floor: >= 20%]
+  (of 99.6% cap-bound, multi-good fraction: 53.3%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 99.6% >= 20%: PASS; gate 2 multi-good 53.3% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=6.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7159, multi_good_when_cap_bound=3810
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 99.6%   [gate 1 floor: >= 20%]
+  (of 99.6% cap-bound, multi-good fraction: 53.2%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 99.6%, multi-good 53.2% (gold=400, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=120) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7192, cap_bound_pairs=6957, multi_good_when_cap_bound=3562
+skipped_worldgen=0, skipped_no_profit=2408
+
+cap_binding rate: 96.7%   [gate 1 floor: >= 20%]
+  (of 96.7% cap-bound, multi-good fraction: 51.2%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 96.7%, multi-good 51.2% (gold=120, diagnostic, not gated)
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=200) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7040, multi_good_when_cap_bound=3630
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 98.0%   [gate 1 floor: >= 20%]
+  (of 98.0% cap-bound, multi-good fraction: 51.6%)
+gate 2 floor: >= 60%
+verdict: FAIL
+  gate 1 cap-binding 98.0% >= 20%: PASS; gate 2 multi-good 51.6% < 60%: FAIL
+
+=== slice-7 production-caps measurement (refill=(plentiful=10.0, neutral=2.0, scarce=0.5), cap_mult=(plentiful=8.0, neutral=1.0, scarce=0.25), gold=400) ===
+seeds=200, warmup=8, measurement_ticks=3
+route_tick_pairs=7186, cap_bound_pairs=7046, multi_good_when_cap_bound=3639
+skipped_worldgen=0, skipped_no_profit=2414
+
+cap_binding rate: 98.1%   [gate 1 floor: >= 20%]
+  (of 98.1% cap-bound, multi-good fraction: 51.6%)
+gate 2 floor: >= 60%
+verdict: DIAG
+  cap-binding 98.1%, multi-good 51.6% (gold=400, diagnostic, not gated)
+
+=== sanity baselines ===
+--- sanity baseline: refill = cap-saturating (rate ~ 50/tick) ---
+  refill=(50.0, 50.0, 50.0), cap_mult_plentiful=4.0, gold=200
+  cap_binding 67.2%, multi-good 53.2% (expect cap-binding ~0%)
+
+--- sanity baseline: refill = 0 (no refill ever) ---
+  refill=(0.0, 0.0, 0.0), cap_mult_plentiful=4.0, gold=200
+  cap_binding 0.0%, multi-good 0.0% (expect cap-binding high, multi-good high)
+
+=== sweep summary (gold=200 gating only) ===
+(refill, cap_mult_plentiful) -> verdict
+((2.5,0.5,0.1), cap_mult=2.0) -> FAIL  [cap-binding 100.0%, multi-good 29.4%]
+((2.5,0.5,0.1), cap_mult=4.0) -> FAIL  [cap-binding 100.0%, multi-good 28.4%]
+((2.5,0.5,0.1), cap_mult=6.0) -> FAIL  [cap-binding 100.0%, multi-good 27.8%]
+((2.5,0.5,0.1), cap_mult=8.0) -> FAIL  [cap-binding 99.6%, multi-good 24.4%]
+((5.0,1.0,0.2), cap_mult=2.0) -> FAIL  [cap-binding 100.0%, multi-good 43.4%]
+((5.0,1.0,0.2), cap_mult=4.0) -> FAIL  [cap-binding 100.0%, multi-good 42.9%]
+((5.0,1.0,0.2), cap_mult=6.0) -> FAIL  [cap-binding 99.9%, multi-good 42.7%]
+((5.0,1.0,0.2), cap_mult=8.0) -> FAIL  [cap-binding 99.3%, multi-good 41.4%]
+((8.0,1.5,0.4), cap_mult=2.0) -> FAIL  [cap-binding 100.0%, multi-good 43.9%]
+((8.0,1.5,0.4), cap_mult=4.0) -> FAIL  [cap-binding 100.0%, multi-good 44.1%]
+((8.0,1.5,0.4), cap_mult=6.0) -> FAIL  [cap-binding 99.8%, multi-good 44.6%]
+((8.0,1.5,0.4), cap_mult=8.0) -> FAIL  [cap-binding 98.5%, multi-good 43.8%]
+((10.0,2.0,0.5), cap_mult=2.0) -> FAIL  [cap-binding 100.0%, multi-good 53.7%]
+((10.0,2.0,0.5), cap_mult=4.0) -> FAIL  [cap-binding 100.0%, multi-good 53.3%]
+((10.0,2.0,0.5), cap_mult=6.0) -> FAIL  [cap-binding 99.6%, multi-good 53.3%]
+((10.0,2.0,0.5), cap_mult=8.0) -> FAIL  [cap-binding 98.0%, multi-good 51.6%]

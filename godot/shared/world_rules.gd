@@ -39,5 +39,15 @@ const BANDIT_GOODS_LOSS_FRACTION: float = 0.50
 # per-trader; until then, the constant is the seed.
 const CARGO_CAPACITY: int = 60
 
+# Slice-7 stock multipliers. See docs/slice-7-production-caps-spec.md §6.2.
+# Cap and refill-rate per (node, good) are derived at world-gen time as
+# Good.base_stock_cap * cap-mult and Good.base_refill_rate * rate-mult, where
+# the multiplier is selected by the per-node tag (good in produces -> plentiful,
+# good in consumes -> scarce, neither -> neutral=1.0).
+const STOCK_CAP_MULT_PLENTIFUL: float = 4.0
+const STOCK_CAP_MULT_SCARCE: float = 0.25
+const REFILL_MULT_PLENTIFUL: float = 5.0
+const REFILL_MULT_SCARCE: float = 0.2
+
 static func edge_cost(e: EdgeState) -> int:
 	return e.distance * TRAVEL_COST_PER_DISTANCE

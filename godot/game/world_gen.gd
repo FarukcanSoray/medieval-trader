@@ -52,6 +52,14 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 		_author_encounters(effective_seed, edge_states)
 		for node: NodeState in node_states:
 			node.prices = _seed_prices(effective_seed, node, goods)
+		# Slice-7 §4.2 / §6.2: per-(node, good) cap and refill rate are derived
+		# at world-gen time from per-good base values * per-node tag multipliers.
+		# Authored after prices so node.produces / node.consumes are stable
+		# (set by _author_bias). Mirrors the per-node iteration shape used by
+		# every prior author-stage. Stock starts full on a fresh world.
+		for node: NodeState in node_states:
+			for good: Good in goods:
+				_author_stock(node, good)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
 		var world: WorldState = WorldState.new()
 		world.schema_version = WorldState.SCHEMA_VERSION
@@ -110,6 +118,14 @@ static func forward_port_goods(world: WorldState, all_goods: Array[Good]) -> boo
 		var seeded: Dictionary[String, int] = _seed_prices(world.world_seed, node, missing)
 		for good_id: String in seeded.keys():
 			node.prices[good_id] = seeded[good_id]
+	# Slice-7 §4.2: extend the forward-port path to mirror stock authoring for
+	# newly-added goods. Same probe shape as bias/prices -- _author_stock writes
+	# the four parallel dicts per (node, good), so a save with three goods
+	# loaded onto a four-good build gets the missing good's stock state filled
+	# byte-identically to a fresh-gen save with the same tags.
+	for node: NodeState in world.nodes:
+		for good: Good in missing:
+			_author_stock(node, good)
 	return true
 
 # Public diagnostic helper for tools/measure_bias_aborts.gd. Reproduces the
@@ -278,6 +294,31 @@ static func _seed_prices(effective_seed: int, node: NodeState, goods: Array[Good
 		var delta: int = roundi(rng.randf_range(-good.volatility, good.volatility) * anchor)
 		prices[good.id] = clampi(anchor + delta, good.floor_price, good.ceiling_price)
 	return prices
+
+# Slice-7 §4.2: derive per-(node, good) cap and refill rate from
+# Good.base_stock_cap / Good.base_refill_rate * tag multiplier. produces -->
+# plentiful (cap *4, rate *5), consumes --> scarce (cap *0.25, rate *0.2),
+# neither --> neutral (1.0/1.0). Stock starts at cap (full) and accumulator at
+# 0 -- the migration path from v4 mirrors these exact values per spec §5.4.
+# Asserts rate < cap as a sanity rail per spec §9 ("refill rate > cap" edge case).
+static func _author_stock(node: NodeState, good: Good) -> void:
+	var cap_mult: float = 1.0
+	var rate_mult: float = 1.0
+	if good.id in node.produces:
+		cap_mult = WorldRules.STOCK_CAP_MULT_PLENTIFUL
+		rate_mult = WorldRules.REFILL_MULT_PLENTIFUL
+	elif good.id in node.consumes:
+		cap_mult = WorldRules.STOCK_CAP_MULT_SCARCE
+		rate_mult = WorldRules.REFILL_MULT_SCARCE
+	var cap: int = maxi(1, roundi(float(good.base_stock_cap) * cap_mult))
+	var rate: float = good.base_refill_rate * rate_mult
+	# Spec §9: rate >= cap is bad authoring (refill saturates in one tick). Hard
+	# assert in dev; release builds compile out the assert and accept the waste.
+	assert(rate < float(cap), "worldgen: refill rate (%f) >= cap (%d) for node %s good %s" % [rate, cap, node.id, good.id])
+	node.stock_caps[good.id] = cap
+	node.refill_rates[good.id] = rate
+	node.stocks[good.id] = cap
+	node.refill_accumulators[good.id] = 0.0
 
 # Authors per-good per-node bias under the free-lunch predicate (spec §5.5).
 # Returns false when the predicate cannot be satisfied with allowed_range >=

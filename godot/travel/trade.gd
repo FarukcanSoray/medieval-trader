@@ -22,6 +22,11 @@ func try_buy(good_id: String) -> bool:
 	var node: NodeState = _world.get_node_by_id(_trader.location_node_id)
 	if node == null or not node.prices.has(good_id):
 		return false
+	# Slice-7 §3.4: stock gate. Read-only check before gold deduction so a
+	# refusal here costs nothing. Mutation (decrement) happens after the cargo
+	# gate passes -- the verb's contract is "all gates pass or all state untouched."
+	if _world.stock_for(node.id, good_id) <= 0:
+		return false
 	var price: int = int(node.prices[good_id])
 	# Gold first: apply_gold_delta rejects (returns false) when gold < price,
 	# so we never touch inventory on a failed buy.
@@ -51,6 +56,21 @@ func try_buy(good_id: String) -> bool:
 		_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
 		push_warning("try_buy: cart-overflow defensive gate fired -- UI predicate drift")
 		return false
+	# Slice-7 §3.4: re-read stock after gold/cargo gates as a belt-and-braces
+	# check. Under today's single-threaded coroutine model, stock cannot change
+	# between the entry check and here -- but the verb closes its own contract
+	# rather than relying on upstream sequencing. push_warning surfaces drift.
+	if _world.stock_for(node.id, good_id) <= 0:
+		_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
+		push_warning("try_buy: stock-race defensive gate fired -- node %s good %s" % [node.id, good_id])
+		return false
+	# Slice-7 §3.4: stock decrement BEFORE inventory increment. Inventory +1
+	# cannot fail today, but the contract treats apply_inventory_delta as
+	# fallible; if it ever could fail, decrementing stock first is the lossy
+	# direction (one unit to the void) which we explicitly accept over the
+	# alternative (player gets a free unit because stock check passed but
+	# decrement didn't run). Spec §3.1.
+	_world.decrement_stock(node.id, good_id)
 	_trader.apply_inventory_delta(good_id, 1, Game.emit_state_dirty)
 	_push_history("buy", good_id, -price)
 	# Slice-5.x Bug A commit point: explicit write_now after the history push so a

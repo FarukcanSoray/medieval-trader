@@ -12,6 +12,12 @@ static func check(trader: TraderState, world: WorldState) -> InvariantReport:
 	_run(report, "P4", _check_death_consistency(trader, world))
 	_run(report, "P5", _check_non_negative(trader, world))
 	_run(report, "P6", _check_history_integrity(world))
+	# Slice-7 §9: stock state guards that ride the v4 -> v5 migration. P7
+	# bounds-checks per-(node, good) stock + accumulator; P8 enforces key-set
+	# parity across the five per-good dicts (prices, stocks, caps, rates,
+	# accumulators) so a partial-write or partial-migration surfaces here.
+	_run(report, "P7", _check_stock_bounds(world))
+	_run(report, "P8", _check_stock_key_parity(world))
 
 	report.ok = report.violations.is_empty()
 	return report
@@ -120,6 +126,64 @@ static func _check_history_integrity(world: WorldState) -> String:
 			return "travel history from_name '%s' not in world.nodes" % from_name
 		if _find_node_by_display_name(world, to_name) == null:
 			return "travel history to_name '%s' not in world.nodes" % to_name
+	return ""
+
+# Slice-7 P7: every (node, good) stock pair must satisfy
+#   0 <= stocks[g] <= caps[g]
+# and the float accumulator must satisfy
+#   0.0 <= accumulators[g] < 1.0
+# (accumulator >= 1.0 means StockSystem failed to harvest a whole unit on the
+# tick boundary, which is a refill-loop bug). Mirrors P5's bound-on-state shape.
+static func _check_stock_bounds(world: WorldState) -> String:
+	for node: NodeState in world.nodes:
+		for good_id: String in node.stocks.keys():
+			var stock: int = int(node.stocks[good_id])
+			if stock < 0:
+				return "node '%s' stock for '%s' (%d) < 0" % [node.id, good_id, stock]
+			if not node.stock_caps.has(good_id):
+				return "node '%s' has stock for '%s' but no cap" % [node.id, good_id]
+			var cap: int = int(node.stock_caps[good_id])
+			if stock > cap:
+				return "node '%s' stock for '%s' (%d) > cap (%d)" % [node.id, good_id, stock, cap]
+		for good_id: String in node.refill_accumulators.keys():
+			var accum: float = float(node.refill_accumulators[good_id])
+			if accum < 0.0:
+				return "node '%s' accumulator for '%s' (%f) < 0.0" % [node.id, good_id, accum]
+			if accum >= 1.0:
+				return "node '%s' accumulator for '%s' (%f) >= 1.0" % [node.id, good_id, accum]
+	return ""
+
+# Slice-7 P8: the five per-good dicts on each node (prices, stocks, caps,
+# rates, accumulators) must share an identical key set. Catches partial-write
+# failures and partial-migration corruption -- a node that has prices for wool
+# but no stock entry would silently misbehave under StockSystem and Trade.
+static func _check_stock_key_parity(world: WorldState) -> String:
+	for node: NodeState in world.nodes:
+		var price_keys: Dictionary[String, bool] = {}
+		for k: String in node.prices.keys():
+			price_keys[k] = true
+		for k: String in node.stocks.keys():
+			if not price_keys.has(k):
+				return "node '%s' has stock for '%s' but no price" % [node.id, k]
+		for k: String in node.stock_caps.keys():
+			if not price_keys.has(k):
+				return "node '%s' has stock_cap for '%s' but no price" % [node.id, k]
+		for k: String in node.refill_rates.keys():
+			if not price_keys.has(k):
+				return "node '%s' has refill_rate for '%s' but no price" % [node.id, k]
+		for k: String in node.refill_accumulators.keys():
+			if not price_keys.has(k):
+				return "node '%s' has accumulator for '%s' but no price" % [node.id, k]
+		# Reverse direction: every priced good must have stock state.
+		for k: String in node.prices.keys():
+			if not node.stocks.has(k):
+				return "node '%s' has price for '%s' but no stock" % [node.id, k]
+			if not node.stock_caps.has(k):
+				return "node '%s' has price for '%s' but no stock_cap" % [node.id, k]
+			if not node.refill_rates.has(k):
+				return "node '%s' has price for '%s' but no refill_rate" % [node.id, k]
+			if not node.refill_accumulators.has(k):
+				return "node '%s' has price for '%s' but no accumulator" % [node.id, k]
 	return ""
 
 static func _find_node_by_display_name(world: WorldState, display_name: String) -> NodeState:
