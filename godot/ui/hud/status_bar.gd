@@ -41,8 +41,8 @@ func _refresh() -> void:
 	_age_label.text = "Age: %d ticks" % trader.age_ticks
 	if trader.travel != null:
 		_location_label.text = "Travelling %s -> %s (%d ticks left)" % [
-			trader.travel.from_id,
-			trader.travel.to_id,
+			_node_display_name(trader.travel.from_id),
+			_node_display_name(trader.travel.to_id),
 			trader.travel.ticks_remaining,
 		]
 	else:
