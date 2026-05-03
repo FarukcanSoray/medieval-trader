@@ -5,12 +5,11 @@
 ## Run with:
 ##   godot --headless --path <godot-root> --script res://tools/measure_bias_aborts.gd
 ##
-## Goods-list policy (slice-5 day-1):
-##   The canonical good-list path array is [wool, cloth, salt]. Day-2 appends
-##   "res://goods/iron.tres" AND extends N_SWEEP to include 4. Today, iron.tres
-##   does not exist on disk; the sweep covers N in {2, 3} only. _load_goods(n)
-##   asserts n <= GOOD_PATHS.size() so an out-of-range request fails loudly
-##   rather than silently producing a smaller goods array.
+## Goods-list policy (slice-5 day-2):
+##   The canonical good-list path array is [wool, cloth, salt, iron]. The sweep
+##   covers N in {2, 3, 4}; GATE_N is 4 (the final-ship gate per spec §6).
+##   _load_goods(n) asserts n <= GOOD_PATHS.size() so an out-of-range request
+##   fails loudly rather than silently producing a smaller goods array.
 ##
 ## Fallback rect choice:
 ##   Production passes Rect2(Vector2.ZERO, $HUD/MapPanel.size) into WorldGen.generate
@@ -28,12 +27,11 @@ extends SceneTree
 
 const N: int = 1000
 const FALLBACK_RECT: Rect2 = Rect2(0, 0, 468, 664)
-# Slice-5 day-1: sweep N=2 (kernel-trained pair) and N=3 (with salt). Day-2
-# appends 4 once iron.tres lands.
-const N_SWEEP: Array[int] = [2, 3]
-# Day-1 gate good count: slice-5 day-1 verdict is read off this N. Day-2 retunes
-# this constant to 4 (the final-ship gate per spec §6).
-const GATE_N: int = 3
+# Slice-5 day-2: sweep N=2 (kernel-trained pair), N=3 (with salt), and N=4
+# (with iron). Day-1 covered {2, 3}; day-2 appends 4 now that iron.tres lands.
+const N_SWEEP: Array[int] = [2, 3, 4]
+# Day-2 gate good count: the final-ship gate per spec §6 is read off this N.
+const GATE_N: int = 4
 # Slice-5 §6: if abort_pct(GATE_N) > MAX_ABORT_RATE, the slice stops and a
 # slice-5.x carryover logs the failing good's allowed_range distribution.
 const MAX_ABORT_RATE: float = 5.0
@@ -43,6 +41,7 @@ const GOOD_PATHS: Array[String] = [
 	"res://goods/wool.tres",
 	"res://goods/cloth.tres",
 	"res://goods/salt.tres",
+	"res://goods/iron.tres",
 ]
 # Allowed-range histogram buckets. Boundaries inclusive on the low side.
 # The [0.0, 0.20) bucket is the predicate-fail zone (below MIN_BIAS_RANGE):
@@ -258,11 +257,11 @@ func _print_summary(sweep_aborts: Dictionary[int, float]) -> void:
 		parts.append("N=%d: %.1f%%" % [n, sweep_aborts[n]])
 	print("abort rates: %s" % ", ".join(parts))
 	print("")
-	print("=== slice-5 day-1 verdict ===")
-	# Day-1 gates on N=GATE_N (3): "expansion is viable at all." The day-2 final
-	# gate is on N=4 once iron.tres lands and N_SWEEP / GATE_N are extended.
-	# A clear gating-N readout matters: day-1 PASS at N=3 does NOT imply N=4
-	# will hold; that's the day-2 measurement's job.
+	print("=== slice-5 day-2 verdict ===")
+	# Day-2 gates on N=GATE_N (4): the final-ship gate per spec §6, now that
+	# iron.tres has landed and N_SWEEP / GATE_N have been extended to 4.
+	# A clear gating-N readout matters: a PASS at N=4 is the slice-shipping
+	# signal; a FAIL hands off to slice-5.x with the abort histogram below.
 	if not sweep_aborts.has(GATE_N):
 		print("verdict: SKIPPED -- N=%d not in sweep" % GATE_N)
 		return
@@ -274,8 +273,8 @@ func _print_summary(sweep_aborts: Dictionary[int, float]) -> void:
 		verdict = "FAIL"
 	print("gating N=%d, threshold MAX_ABORT_RATE=%.1f%%, observed=%.1f%%" %
 			[GATE_N, MAX_ABORT_RATE, gate_pct])
-	print("slice-5 day-1 verdict: %s" % verdict)
+	print("slice-5 day-2 verdict: %s" % verdict)
 	if verdict == "FAIL":
 		print("  -> slice ships at N=%d only; log allowed_range histogram for slice-5.x tuning." % (GATE_N - 1))
 	else:
-		print("  -> day-2 may proceed: author iron.tres, extend N_SWEEP/GATE_N to 4, re-run.")
+		print("  -> slice-5 ships at N=%d; bias-predicate abort rate within budget." % GATE_N)
