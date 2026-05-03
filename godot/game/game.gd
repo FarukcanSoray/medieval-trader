@@ -13,6 +13,10 @@ signal bootstrap_completed
 var trader: TraderState
 var world: WorldState
 var goods: Array[Good]
+# Slice-6: O(1) good-by-id lookup for CargoMath.compute_load. Populated in
+# _ready alongside `goods` and never mutated thereafter; consumers may read
+# directly. Mirrors `goods` semantically -- if `goods` is empty, this is empty too.
+var goods_by_id: Dictionary[String, Good] = {}
 
 # signature: func(new_gold: int, delta: int) -> void
 var emit_gold_changed: Callable
@@ -31,6 +35,11 @@ func _ready() -> void:
 		preload("res://goods/salt.tres") as Good,
 		preload("res://goods/iron.tres") as Good,
 	]
+	# Slice-6: parallel id->Good dict for CargoMath.compute_load O(1) lookup.
+	# Built once here, before any consumer (Trade / NodePanel) reads it.
+	goods_by_id = {}
+	for good: Good in goods:
+		goods_by_id[good.id] = good
 	emit_gold_changed = _on_gold_changed
 	emit_state_dirty = _on_state_dirty
 	_save_service = SaveService.new()

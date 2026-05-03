@@ -8,6 +8,7 @@ signal buy_requested(good_id: String)
 signal sell_requested(good_id: String)
 
 @onready var _title_label: Label = $VBox/TitleLabel
+@onready var _cart_label: Label = $VBox/CartLabel
 @onready var _rows_container: VBoxContainer = $VBox/Rows
 
 # Reused row widgets keyed by good.id, rebuilt once on first refresh.
@@ -33,12 +34,31 @@ func _refresh() -> void:
 	var world: WorldState = Game.world
 	if trader == null or world == null:
 		_title_label.text = "Node: -"
+		_cart_label.text = "Cart: -/-"
 		_set_all_rows_disabled(true)
 		return
 
 	# Build rows lazily so Game.goods is available (populated in Game._ready).
 	if _rows.is_empty():
 		_build_rows()
+
+	# Slice-6 §8.1: pre-bootstrap defensive path -- if Game.goods is empty,
+	# render the placeholder cart label and skip cargo compute entirely.
+	# CargoMath needs goods_by_id to be populated; both fill in Game._ready.
+	if Game.goods.is_empty():
+		_cart_label.text = "Cart: -/-"
+		_title_label.text = "Node: -"
+		_set_all_rows_disabled(true)
+		return
+
+	# Slice-6 §8.1 / §3: single inventory walk per refresh, shared by the cart
+	# label and every row's buy-predicate. Per-row recompute would be O(N goods)
+	# inside an O(N goods) loop -- N is small but the spec is "compute once."
+	var current_load: int = CargoMath.compute_load(trader.inventory, Game.goods_by_id)
+	# Min weight is the "does anything fit?" threshold for the (almost full)
+	# suffix. Folded once here so _update_row doesn't need to re-derive it.
+	var min_good_weight: int = _compute_min_good_weight()
+	_cart_label.text = _format_cart_label(current_load, min_good_weight)
 
 	var travelling: bool = trader.travel != null
 	var node: NodeState = world.get_node_by_id(trader.location_node_id)
@@ -48,12 +68,30 @@ func _refresh() -> void:
 		_set_all_rows_disabled(true)
 		# Still show last-known prices/owned qty rather than blanking — predicates only.
 		for good: Good in Game.goods:
-			_update_row(good, node, trader, true)
+			_update_row(good, node, trader, current_load, true)
 		return
 
 	_title_label.text = node.display_name
 	for good: Good in Game.goods:
-		_update_row(good, node, trader, false)
+		_update_row(good, node, trader, current_load, false)
+
+# Slice-6 §8.1: cart label suffix is " (full)" at exact cap, " (almost full)"
+# when no good in the catalogue fits the remaining capacity, otherwise empty.
+func _format_cart_label(current_load: int, min_good_weight: int) -> String:
+	var base: String = "Cart: %d/%d" % [current_load, WorldRules.CARGO_CAPACITY]
+	if current_load >= WorldRules.CARGO_CAPACITY:
+		return base + " (full)"
+	var remaining: int = WorldRules.CARGO_CAPACITY - current_load
+	if min_good_weight > 0 and remaining < min_good_weight:
+		return base + " (almost full)"
+	return base
+
+func _compute_min_good_weight() -> int:
+	var min_w: int = 0
+	for good: Good in Game.goods:
+		if min_w == 0 or good.weight < min_w:
+			min_w = good.weight
+	return min_w
 
 func _build_rows() -> void:
 	for good: Good in Game.goods:
@@ -90,7 +128,7 @@ func _build_rows() -> void:
 		_rows_container.add_child(row)
 		_rows[good.id] = row
 
-func _update_row(good: Good, node: NodeState, trader: TraderState, force_disabled: bool) -> void:
+func _update_row(good: Good, node: NodeState, trader: TraderState, current_load: int, force_disabled: bool) -> void:
 	var row: Control = _rows.get(good.id)
 	if row == null:
 		return
@@ -107,6 +145,7 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, force_disable
 	if node == null:
 		price_label.text = "Price: -"
 		buy_button.disabled = true
+		buy_button.tooltip_text = ""
 		sell_button.disabled = true
 		return
 
@@ -120,19 +159,45 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, force_disable
 
 	if force_disabled:
 		buy_button.disabled = true
+		buy_button.tooltip_text = ""
 		sell_button.disabled = true
 		return
 
-	# Predicates evaluated here per slice rule — never on click.
-	buy_button.disabled = price <= 0 or trader.gold < price
+	# Slice-6 §3 / §8.2: predicates evaluated here per slice rule -- never on
+	# click. fits_in_cart mirrors Trade.try_buy's defensive gate so the UI and
+	# runtime predicates stay aligned (the warning fires if they ever diverge).
+	var affordable: bool = price > 0 and trader.gold >= price
+	var fits_in_cart: bool = current_load + good.weight <= WorldRules.CARGO_CAPACITY
+	buy_button.disabled = not affordable or not fits_in_cart
+	buy_button.tooltip_text = _buy_tooltip(price, trader.gold, good.weight, current_load, affordable, fits_in_cart)
 	sell_button.disabled = owned <= 0
+
+# Slice-6 §8.2: four-case tooltip. Empty string when the buy is permitted; the
+# refusal string names the binding constraint(s). ASCII only -- no arrows, no
+# em-dashes (CLAUDE.md project rule).
+func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, affordable: bool, fits_in_cart: bool) -> String:
+	if affordable and fits_in_cart:
+		return ""
+	var gold_short: int = price - gold
+	var space_short: int = weight - (WorldRules.CARGO_CAPACITY - current_load)
+	if not affordable and not fits_in_cart:
+		return "Need %dg and %d more cart space" % [gold_short, space_short]
+	if not affordable:
+		return "Need %dg more" % gold_short
+	return "Need %d more cart space" % space_short
 
 func _set_all_rows_disabled(disabled: bool) -> void:
 	for row: Control in _rows.values():
 		var buy_button: Button = row.get_node("BuyButton")
 		var sell_button: Button = row.get_node("SellButton")
 		buy_button.disabled = disabled
+		# Mirror _update_row's disabled-branch tooltip clearing so a future
+		# caller hitting this helper post-row-build does not leak stale
+		# refusal strings. Sell rows have no tooltip today; clearing is a
+		# defensive no-op for parity.
+		buy_button.tooltip_text = ""
 		sell_button.disabled = disabled
+		sell_button.tooltip_text = ""
 
 func _on_buy_pressed(good_id: String) -> void:
 	buy_requested.emit(good_id)

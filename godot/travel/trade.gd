@@ -27,6 +27,30 @@ func try_buy(good_id: String) -> bool:
 	# so we never touch inventory on a failed buy.
 	if not _trader.apply_gold_delta(-price, Game.emit_gold_changed, Game.emit_state_dirty):
 		return false
+	# Slice-6 §3: defensive cargo gate. UI predicates can drift from runtime
+	# predicates (slice-1 standing rule); the buy verb is the ground truth, not
+	# the disabled button. If the gate fires here, refund the gold and bail --
+	# the trade did not happen. The push_warning surfaces UI/runtime drift in
+	# dev builds (spec §10).
+	# Spec §10 "orphan good_id in inventory" parity with CargoMath.compute_load:
+	# UI only feeds Game.goods ids today so this is unreachable, but the verb
+	# should not crash if catalogue/inventory drift is ever introduced. Refund
+	# is safe (positive delta on non-negative trader cannot be rejected; same
+	# reasoning as the cart-overflow refund below).
+	var good: Good = Game.goods_by_id.get(good_id)
+	if good == null:
+		_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
+		push_warning("try_buy: orphan good_id %s -- catalogue/inventory drift" % good_id)
+		return false
+	var weight: int = good.weight
+	var current_load: int = CargoMath.compute_load(_trader.inventory, Game.goods_by_id)
+	if current_load + weight > WorldRules.CARGO_CAPACITY:
+		# Refund: positive delta cannot fail (apply_gold_delta only rejects
+		# negative deltas that would drive gold below zero), so the discarded
+		# bool is intentional.
+		_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
+		push_warning("try_buy: cart-overflow defensive gate fired -- UI predicate drift")
+		return false
 	_trader.apply_inventory_delta(good_id, 1, Game.emit_state_dirty)
 	_push_history("buy", good_id, -price)
 	# Slice-5.x Bug A commit point: explicit write_now after the history push so a

@@ -10,3 +10,4 @@ base_price = 7
 floor_price = 3
 ceiling_price = 14
 volatility = 0.13
+weight = 2

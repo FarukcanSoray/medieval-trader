@@ -17,4 +17,7 @@ offset_bottom = -8.0
 [node name="TitleLabel" type="Label" parent="VBox"]
 text = "Node: -"
 
+[node name="CartLabel" type="Label" parent="VBox"]
+text = "Cart: -/-"
+
 [node name="Rows" type="VBoxContainer" parent="VBox"]

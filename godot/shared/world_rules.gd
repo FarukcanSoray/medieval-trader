@@ -31,5 +31,13 @@ const BANDIT_GOLD_LOSS_HARD_CAP: int = 30
 # Day-2 (goods loss) — read by EncounterResolver in the Tier D pass.
 const BANDIT_GOODS_LOSS_FRACTION: float = 0.50
 
+# Slice-6 cargo constants. See docs/slice-6-weight-cargo-spec.md §6.
+# Single hard cap shared across all goods; the buy gate refuses when
+# current_load + good.weight > CARGO_CAPACITY. Value backed by the
+# decision-divergence harness (tools/measure_cargo_decision_divergence.gd).
+# Slice-6.1 promotes this to a TraderState field if capacity ever varies
+# per-trader; until then, the constant is the seed.
+const CARGO_CAPACITY: int = 60
+
 static func edge_cost(e: EdgeState) -> int:
 	return e.distance * TRAVEL_COST_PER_DISTANCE
