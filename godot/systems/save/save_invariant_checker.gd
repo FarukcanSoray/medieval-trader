@@ -106,18 +106,27 @@ static func _check_history_integrity(world: WorldState) -> String:
 		if h.kind != "travel":
 			continue
 		# Wire format authored by TravelController._push_travel_history is "%s->%s"
-		# (ASCII arrow). Runbook prose still shows the Unicode arrow but is stale
-		# per the 2026-05-01 ASCII-arrows decision; trust the code, not the prose.
+		# (ASCII arrow) where the parts are display names, not ids -- the death
+		# screen reads detail as human text. Runbook prose still shows the Unicode
+		# arrow but is stale per the 2026-05-01 ASCII-arrows decision; trust the
+		# code, not the prose. Lookup is inline (node count is small) rather than
+		# adding a WorldState helper for a single call site.
 		var parts: PackedStringArray = h.detail.split("->")
 		if parts.size() != 2:
 			return "travel history detail '%s' not in 'from->to' form" % h.detail
-		var from_id: String = parts[0]
-		var to_id: String = parts[1]
-		if world.get_node_by_id(from_id) == null:
-			return "travel history from_id '%s' not in world.nodes" % from_id
-		if world.get_node_by_id(to_id) == null:
-			return "travel history to_id '%s' not in world.nodes" % to_id
+		var from_name: String = parts[0]
+		var to_name: String = parts[1]
+		if _find_node_by_display_name(world, from_name) == null:
+			return "travel history from_name '%s' not in world.nodes" % from_name
+		if _find_node_by_display_name(world, to_name) == null:
+			return "travel history to_name '%s' not in world.nodes" % to_name
 	return ""
+
+static func _find_node_by_display_name(world: WorldState, display_name: String) -> NodeState:
+	for n: NodeState in world.nodes:
+		if n.display_name == display_name:
+			return n
+	return null
 
 # Mirrors TravelController._find_edge's undirected lookup. Kept private here
 # because TravelController's copy is private too; promoting to WorldState is a

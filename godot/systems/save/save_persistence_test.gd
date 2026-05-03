@@ -74,6 +74,25 @@ func _ready() -> void:
 	if not await SavePersistenceChecker.check_orphan_tmp_sweep(save_service, FALLBACK_RECT):
 		all_pass = false
 
+	# Post-travel B1 re-run: bootstrap-time B1 ran before any history existed, so
+	# P6's history-integrity check was vacuous. By now check_travel_arrival_writes
+	# has populated a travel history entry; re-run B1 against the post-state to
+	# catch P6-shaped regressions. Pull from Game.* in case check_orphan_tmp_sweep
+	# reassigned trader/world via load_or_init -- the user lands on the post-state
+	# next session, that's what we assert against.
+	var post_report: InvariantReport = SaveInvariantChecker.check(Game.trader, Game.world)
+	for tag: String in ["P1", "P2", "P3", "P4", "P5", "P6"]:
+		var failure: String = ""
+		for v: String in post_report.violations:
+			if v.begins_with("%s:" % tag):
+				failure = v
+				break
+		if failure == "":
+			print("[B1 harness, post-travel] PASS %s" % tag)
+		else:
+			print("[B1 harness, post-travel] FAIL %s" % failure)
+			all_pass = false
+
 	if all_pass:
 		print("[5.x harness] ALL PASS")
 		get_tree().quit(0)
