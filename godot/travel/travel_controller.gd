@@ -86,6 +86,14 @@ func process_tick() -> void:
 			if arrived_encounter != null:
 				_apply_encounter(arrived_encounter, arrived_from_id, arrived_to_id)
 			_trader.travel = null
+			# Slice-5.x Bug A commit point: explicit write_now after the mutex
+			# is cleared on the location side, so the save reflects the post-
+			# arrival state (location_node_id != "", travel == null). The tick-
+			# coalesced write below fires on the same iteration -- redundant by
+			# design, accepted as the cost of decoupling. Spec §3.A.
+			var save_service: SaveService = Game.get_node("SaveService") as SaveService
+			if save_service != null:
+				await save_service.write_now()
 		# 3. state_dirty first: SaveService._dirty := true.
 		Game.emit_state_dirty.call()
 		# 4. tick_advanced: SaveService handler runs synchronously, awaits write_now.

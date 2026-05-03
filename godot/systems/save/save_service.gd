@@ -16,6 +16,12 @@ func _ready() -> void:
 	Game.died.connect(_on_died)
 
 func load_or_init(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
+	# Slice-5.x Bug B: orphan-sweep before the file_exists check. A partial write
+	# from the previous session may have left save.json.tmp on disk -- and on
+	# Windows, Godot's rename_absolute does an internal remove-then-MoveFileW, so
+	# a kill in the window between those two calls leaves *only* the .tmp on
+	# disk. Sweep first so the no-save branch runs cleanly. Spec §3.B.
+	_sweep_orphan_tmp()
 	# Trust the caller's rect and forward as-is. The two load-bearing fallbacks
 	# live at bootstrap() (public-API entry warning identifies bypassing call sites)
 	# and _generate_fresh() (last line of defense for callers that bypass us too).
@@ -99,7 +105,15 @@ func load_or_init(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void:
 
 func write_now() -> void:
 	assert(Game.world != null and Game.trader != null, "write_now requires populated state")
-	var f: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	# Slice-5.x Bug B: atomic write via .tmp + rename_absolute. Open the sibling
+	# tempfile, write+close, await the IndexedDB flush, then rename over the
+	# canonical path. Per Architect A2: no platform branch; Godot's Windows
+	# rename_absolute does an internal file_exists -> remove -> MoveFileW
+	# (NOT atomic on NTFS, but the small remove-rename window is the irreducible
+	# Windows-only failure mode -- orphan-sweep on next load handles residue).
+	# Linux/macOS use ::rename(2), atomic over an existing target. Spec §3.B.
+	const TMP_PATH: String = SAVE_PATH + ".tmp"
+	var f: FileAccess = FileAccess.open(TMP_PATH, FileAccess.WRITE)
 	if f == null:
 		# §8: HTML5 IndexedDB unavailable / write-protected — silent fail, one warning.
 		if not _warn_once_no_save:
@@ -113,6 +127,17 @@ func write_now() -> void:
 	f.close()
 	# §3 HTML5 flush requires the await — IndexedDB isn't durable until next frame.
 	await get_tree().process_frame
+	# Atomic-replace step. On failure: push_warning and bail. The .tmp survives
+	# on disk; orphan-sweep on next load deletes it. On Linux/macOS the original
+	# save.json is intact (rename(2) is atomic). On Windows the original may
+	# already be gone (Godot's internal remove ran) -- "lose the last action,"
+	# matching the §7 documented contract.
+	var rename_err: int = DirAccess.rename_absolute(
+		ProjectSettings.globalize_path(TMP_PATH),
+		ProjectSettings.globalize_path(SAVE_PATH),
+	)
+	if rename_err != OK:
+		push_warning("write_now: rename_absolute(%s -> %s) failed with error %d" % [TMP_PATH, SAVE_PATH, rename_err])
 
 # Delete the save file. Used by Begin Anew to ensure the next Main scene
 # generates fresh: with no save on disk, load_or_init takes the no-save branch
@@ -127,6 +152,13 @@ func delete_save() -> void:
 	var err: int = DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	if err != OK:
 		push_warning("delete_save: remove_absolute(%s) failed with error %d" % [SAVE_PATH, err])
+	# Slice-5.x Bug B: also remove a stale .tmp if present (e.g., a previous
+	# rename-fail left an orphan). Begin Anew's next load_or_init runs the
+	# orphan-sweep too -- the redundancy is one no-op syscall on a non-existent
+	# file, accepted for symmetry. Spec §7 / Architect A4.
+	var tmp_err: int = DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH + ".tmp"))
+	if tmp_err != OK:
+		push_warning("delete_save: remove_absolute(%s.tmp) failed with error %d" % [SAVE_PATH, tmp_err])
 
 # Public regen seam — regen always goes through here so the lifecycle
 # (state replace + flush + dirty clear) stays atomic across callers.
@@ -159,6 +191,22 @@ func _generate_fresh(seed_override: int = -1, map_rect: Rect2 = Rect2()) -> void
 	t.travel = null
 	t.inventory = {} as Dictionary[String, int]
 	Game.trader = t
+
+# Slice-5.x Bug B: orphan-sweep helper for load_or_init. Runs at the very top
+# of load_or_init (before file_exists), and the sole orphan possible is the
+# singleton save.json.tmp from a partial write. push_warning on the common case
+# (orphan present) would be too noisy -- print_verbose emits only when
+# OS.is_stdout_verbose() is true, keeping production logs clean. Warn loudly
+# only on remove failure (read-only flag, AV lock); next successful write
+# overwrites the orphan anyway, so the failure is non-fatal. Spec §3.B.
+func _sweep_orphan_tmp() -> void:
+	var tmp_path: String = SAVE_PATH + ".tmp"
+	if not FileAccess.file_exists(tmp_path):
+		return
+	print_verbose("orphan-sweep: removing stale " + tmp_path)
+	var err: int = DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp_path))
+	if err != OK:
+		push_warning("orphan-sweep: remove_absolute(%s) failed with error %d" % [tmp_path, err])
 
 func _on_tick_advanced(_new_tick: int) -> void:
 	if not _dirty:

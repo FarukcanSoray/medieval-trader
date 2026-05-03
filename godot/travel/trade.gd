@@ -9,6 +9,10 @@ func setup(trader: TraderState, world: WorldState) -> void:
 	_trader = trader
 	_world = world
 
+# Slice-5.x Bug A: try_buy is a coroutine (it awaits write_now after the history
+# push). Bool return is preserved; the only callers are the signal connections in
+# main.gd:52-53 which discard the return via emit_signal -- making the function a
+# coroutine is a no-op from the caller's perspective. See spec §3.A / Architect A1.
 func try_buy(good_id: String) -> bool:
 	if _trader == null or _world == null or _world.dead:
 		return false
@@ -25,8 +29,14 @@ func try_buy(good_id: String) -> bool:
 		return false
 	_trader.apply_inventory_delta(good_id, 1, Game.emit_state_dirty)
 	_push_history("buy", good_id, -price)
+	# Slice-5.x Bug A commit point: explicit write_now after the history push so a
+	# refresh-after-buy never loses the trade. Spec §3.A.
+	var save_service: SaveService = Game.get_node("SaveService") as SaveService
+	if save_service != null:
+		await save_service.write_now()
 	return true
 
+# Slice-5.x Bug A: see try_buy header.
 func try_sell(good_id: String) -> bool:
 	if _trader == null or _world == null or _world.dead:
 		return false
@@ -46,6 +56,10 @@ func try_sell(good_id: String) -> bool:
 	assert(inv_ok, "try_sell: pre-gate violated — apply_inventory_delta rejected after qty > 0 check")
 	_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
 	_push_history("sell", good_id, price)
+	# Slice-5.x Bug A commit point: explicit write_now after the history push.
+	var save_service: SaveService = Game.get_node("SaveService") as SaveService
+	if save_service != null:
+		await save_service.write_now()
 	return true
 
 func _push_history(kind: String, good_id: String, delta_gold: int) -> void:

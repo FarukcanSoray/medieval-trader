@@ -111,6 +111,11 @@ func _f6_fallback_bootstrap_if_needed() -> void:
 	if world != null:
 		return
 	var current: Node = get_tree().current_scene
+	# Slice-5.x Bug C: headless --script mode has no scene tree; the F6 fallback
+	# is a no-op there. Without this gate, a tooling run would write a stub save
+	# over a real one. Spec §3.C.
+	if current == null:
+		return
 	if current is Main:
 		return
 	bootstrap()
