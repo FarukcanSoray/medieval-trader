@@ -6,7 +6,7 @@ A solo, AI-developed game about a travelling trader in medieval times. The playe
 
 The kernel is the collision: arbitrage profit only matters because travel costs bite, and travel only matters because there's profit waiting at the other end. Neither pillar works alone.
 
-The world has memory of trader actions: nodes' supply state persists across visits, so cleaning out a node means returning too soon is a wasted leg. World-memory sits alongside the kernel collision as a load-bearing texture; future slices that touch world state default to "preserve memory," not "reset on each visit." Memory is mechanical-state-shaped, not narrative-shaped -- the `no story / no characters` NOTs below are unchanged.
+The world's economic state is the game's primary texture. Stock and demand at every node remember what happened, and prices are the player's window into that memory. This pillar sits alongside the kernel collision: the kernel describes what it costs to chase arbitrage; this pillar describes where the arbitrage comes from. Future slices that touch world state default to "preserve memory," not "reset on each visit." Memory is mechanical-state-shaped, not narrative-shaped -- the `no story / no characters` NOTs below are unchanged.
 
 This is a portfolio-leaning first serious attempt at AI-driven game development. Scope discipline matters as much as the design itself.
 
