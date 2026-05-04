@@ -50,16 +50,16 @@ static func generate(world_seed: int, goods: Array[Good], map_rect: Rect2) -> Wo
 		if not _author_bias(effective_seed, node_states, edge_states, goods):
 			continue
 		_author_encounters(effective_seed, edge_states)
-		for node: NodeState in node_states:
-			node.prices = _seed_prices(effective_seed, node, goods)
-		# Slice-7 §4.2 / §6.2: per-(node, good) cap and refill rate are derived
-		# at world-gen time from per-good base values * per-node tag multipliers.
-		# Authored after prices so node.produces / node.consumes are stable
-		# (set by _author_bias). Mirrors the per-node iteration shape used by
-		# every prior author-stage. Stock starts full on a fresh world.
+		# Slice-8 §3.5: prices retire from the save schema; pull-driven via
+		# PricingMath. Slice-7 §4.2 / §6.2: per-(node, good) supply pool authored
+		# from per-good base values * per-node tag multipliers, after produces/
+		# consumes are stable. Slice-8 §5.7: demand pool authored symmetrically.
+		# Stock starts full and demand starts at cap on a fresh world.
 		for node: NodeState in node_states:
 			for good: Good in goods:
-				_author_stock(node, good)
+				_author_supply(node, good)
+				_author_demand(node, good)
+		_emit_p2_warnings(goods)
 		assert(_is_connected(node_states, edge_states), "worldgen: connectivity assert failed")
 		var world: WorldState = WorldState.new()
 		world.schema_version = WorldState.SCHEMA_VERSION
@@ -92,17 +92,13 @@ static func needs_goods_forward_port(world: WorldState, all_goods: Array[Good]) 
 			return true
 	return false
 
-# Re-seeds bias and tick-0 prices for goods missing from the loaded world, in
-# place. Reuses world.world_seed so the forward-ported values are byte-identical
-# to a fresh-gen save at the same seed. Returns false if the predicate fails for
-# the new goods on the saved topology (rare -- caller falls through to corruption
-# regen). Existing keys in bias / prices / produces / consumes are preserved;
-# `_author_bias` and `_seed_prices` only iterate the goods passed in, so they
-# write only the missing-good keys. Correctness depends on `missing` excluding
-# any good already authored on the world: `_author_bias` appends to
-# `node.produces` / `node.consumes` rather than overwriting, so re-passing an
-# already-authored good would double-tag it. The `bias_keys.has(good.id)` filter
-# below is the load-bearing exclusion.
+# Re-seeds bias, supply pool, and demand pool for goods missing from the
+# loaded world, in place. Reuses world.world_seed so the forward-ported values
+# are byte-identical to a fresh-gen save at the same seed. Returns false if
+# the predicate fails for the new goods on the saved topology (rare -- caller
+# falls through to corruption regen). Slice-8: prices are no longer authored
+# (pull-driven via PricingMath); the bias-keys probe still anchors the missing
+# set because bias is the slice-3 vocabulary load-bearing for tags.
 static func forward_port_goods(world: WorldState, all_goods: Array[Good]) -> bool:
 	var missing: Array[Good] = []
 	if not world.nodes.is_empty():
@@ -114,18 +110,16 @@ static func forward_port_goods(world: WorldState, all_goods: Array[Good]) -> boo
 		return true
 	if not _author_bias(world.world_seed, world.nodes, world.edges, missing):
 		return false
-	for node: NodeState in world.nodes:
-		var seeded: Dictionary[String, int] = _seed_prices(world.world_seed, node, missing)
-		for good_id: String in seeded.keys():
-			node.prices[good_id] = seeded[good_id]
-	# Slice-7 §4.2: extend the forward-port path to mirror stock authoring for
-	# newly-added goods. Same probe shape as bias/prices -- _author_stock writes
-	# the four parallel dicts per (node, good), so a save with three goods
-	# loaded onto a four-good build gets the missing good's stock state filled
-	# byte-identically to a fresh-gen save with the same tags.
+	# Slice-7 §4.2 + Slice-8 §3.6: extend forward-port to author both supply
+	# and demand pools for newly-added goods. Same probe shape as bias --
+	# _author_supply / _author_demand write the four-dict quads per (node, good),
+	# so a save with three goods loaded onto a four-good build gets the missing
+	# good's pool state filled byte-identically to a fresh-gen save with the
+	# same tags.
 	for node: NodeState in world.nodes:
 		for good: Good in missing:
-			_author_stock(node, good)
+			_author_supply(node, good)
+			_author_demand(node, good)
 	return true
 
 # Public diagnostic helper for tools/measure_bias_aborts.gd. Reproduces the
@@ -278,32 +272,14 @@ static func _materialize_nodes_unpriced(positions: Array[Vector2], names: Array[
 		nodes.append(node)
 	return nodes
 
-# Tick-0 seed: anchor the price at the biased anchor and apply one drift sample.
-# Mirrors the per-tick formula's centring (anchor not base_price), with no
-# mean-reversion term because there is no prior old_price -- the seed IS the
-# starting point. Seed namespace hash([effective_seed, 0, node_id, good.id])
-# preserved so PriceModel determinism replays byte-identically post-load.
-static func _seed_prices(effective_seed: int, node: NodeState, goods: Array[Good]) -> Dictionary[String, int]:
-	var prices: Dictionary[String, int] = {}
-	for good: Good in goods:
-		assert(good.volatility > 0.0, "worldgen: good '%s' has zero volatility" % good.id)
-		assert(node.bias.has(good.id), "worldgen: node '%s' missing bias for good '%s'" % [node.id, good.id])
-		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-		rng.seed = hash([effective_seed, 0, node.id, good.id])
-		var anchor: int = roundi(good.base_price * (1.0 + node.bias[good.id]))
-		var delta: int = roundi(rng.randf_range(-good.volatility, good.volatility) * anchor)
-		prices[good.id] = clampi(anchor + delta, good.floor_price, good.ceiling_price)
-	return prices
-
-# Slice-7 §4.2: derive per-(node, good) cap and refill rate from
+# Slice-7 §4.2: derive per-(node, good) supply cap and refill rate from
 # Good.base_stock_cap / Good.base_refill_rate * tag multiplier. produces -->
-# plentiful (cap *4, rate *5), consumes --> scarce (cap *0.25, rate *0.2),
-# neither --> neutral (1.0/1.0). Stock starts at cap (full) and accumulator at
-# 0 -- the migration path from v4 mirrors these exact values per spec §5.4.
-# Asserts rate < cap as a sanity rail per spec §9 ("refill rate > cap" edge case).
-static func _author_stock(node: NodeState, good: Good) -> void:
-	var cap_mult: float = 1.0
-	var rate_mult: float = 1.0
+# plentiful, consumes --> scarce, neither --> neutral. Stock starts at cap
+# (full) and accumulator at 0. Slice-8: 5x cap multipliers (spec §5.8); per-good
+# baseline unchanged. Asserts rate < cap as a sanity rail per slice-7 spec §9.
+static func _author_supply(node: NodeState, good: Good) -> void:
+	var cap_mult: float = WorldRules.STOCK_CAP_MULT_NEUTRAL
+	var rate_mult: float = WorldRules.REFILL_MULT_NEUTRAL
 	if good.id in node.produces:
 		cap_mult = WorldRules.STOCK_CAP_MULT_PLENTIFUL
 		rate_mult = WorldRules.REFILL_MULT_PLENTIFUL
@@ -312,13 +288,55 @@ static func _author_stock(node: NodeState, good: Good) -> void:
 		rate_mult = WorldRules.REFILL_MULT_SCARCE
 	var cap: int = maxi(1, roundi(float(good.base_stock_cap) * cap_mult))
 	var rate: float = good.base_refill_rate * rate_mult
-	# Spec §9: rate >= cap is bad authoring (refill saturates in one tick). Hard
-	# assert in dev; release builds compile out the assert and accept the waste.
+	# Slice-7 spec §9: rate >= cap is bad authoring (refill saturates in one tick).
 	assert(rate < float(cap), "worldgen: refill rate (%f) >= cap (%d) for node %s good %s" % [rate, cap, node.id, good.id])
 	node.stock_caps[good.id] = cap
 	node.refill_rates[good.id] = rate
 	node.stocks[good.id] = cap
 	node.refill_accumulators[good.id] = 0.0
+
+# Slice-8 §5.7: derive per-(node, good) demand cap and decay rate from
+# Good.base_demand_cap / Good.base_demand_decay_rate * tag multiplier. The
+# multiplier table inverts supply: produces --> producer (low demand: locals
+# don't crave their own export), consumes --> consumer (high demand: locals
+# always want their imports), neither --> neutral. Demand pool starts at cap
+# (full unmet demand) and accumulator at 0. The migration path from v5 mirrors
+# these exact values per spec §3.6.
+static func _author_demand(node: NodeState, good: Good) -> void:
+	var cap_mult: float = WorldRules.DEMAND_CAP_MULT_NEUTRAL
+	var rate_mult: float = WorldRules.DEMAND_DECAY_MULT_NEUTRAL
+	if good.id in node.produces:
+		cap_mult = WorldRules.DEMAND_CAP_MULT_PRODUCER
+		rate_mult = WorldRules.DEMAND_DECAY_MULT_PRODUCER
+	elif good.id in node.consumes:
+		cap_mult = WorldRules.DEMAND_CAP_MULT_CONSUMER
+		rate_mult = WorldRules.DEMAND_DECAY_MULT_CONSUMER
+	var cap: int = maxi(1, roundi(float(good.base_demand_cap) * cap_mult))
+	var rate: float = good.base_demand_decay_rate * rate_mult
+	# Sanity rail mirroring _author_supply: a decay rate >= cap saturates the
+	# pool in one tick, defeating the world-breathes-during-travel mechanic.
+	assert(rate < float(cap), "worldgen: demand decay rate (%f) >= cap (%d) for node %s good %s" % [rate, cap, node.id, good.id])
+	node.demand_caps[good.id] = cap
+	node.demand_decay_rates[good.id] = rate
+	node.demand_pools[good.id] = cap
+	node.demand_decay_accumulators[good.id] = 0.0
+
+# Slice-8 §5.10: P2 free-lunch predicate becomes diagnostic (not blocking)
+# under the pool curve. For each good, the maximum spread under best pool
+# state is `base * (1 + 3 * PERTURBATION_FRACTION)` (best-case sell at
+# 2*base*(1+P) minus best-case buy at base*(1-P), simplified). If that spread
+# is below the shortest-edge travel cost, the good is "long-edge-only filler"
+# rather than always-profitable. Decision:
+# 2026-05-04-slice-8-salt-base-price-and-p2-predicate.
+static func _emit_p2_warnings(goods: Array[Good]) -> void:
+	# Slice-8 spec §5.10 uses MIN_EDGE_DISTANCE * TRAVEL_COST_PER_DISTANCE as
+	# the static lower bound on shortest-edge travel cost. The actual shortest
+	# edge varies per topology but cannot be smaller than MIN_EDGE_DISTANCE.
+	var required: int = MIN_EDGE_DISTANCE * WorldRules.TRAVEL_COST_PER_DISTANCE
+	for good: Good in goods:
+		var max_spread: float = float(good.base_price) * (1.0 + 3.0 * WorldRules.PERTURBATION_FRACTION)
+		if max_spread <= float(required):
+			push_warning("worldgen P2: good '%s' (base=%d) cannot turn profit on shortest edge under pool curve; will only be profitable on longer edges (max_spread=%.1f, required=%d)" % [good.id, good.base_price, max_spread, required])
 
 # Authors per-good per-node bias under the free-lunch predicate (spec §5.5).
 # Returns false when the predicate cannot be satisfied with allowed_range >=

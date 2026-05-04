@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://main.gd" id="1_main"]
 [ext_resource type="Script" path="res://travel/travel_controller.gd" id="2_travel_controller"]
-[ext_resource type="Script" path="res://pricing/price_model.gd" id="3_price_model"]
 [ext_resource type="Script" path="res://aging/aging.gd" id="4_aging"]
 [ext_resource type="Script" path="res://travel/trade.gd" id="5_trade"]
 [ext_resource type="PackedScene" path="res://ui/hud/node_panel.tscn" id="6_node_panel"]
@@ -12,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://ui/death_screen/death_screen.tscn" id="10_death_screen"]
 [ext_resource type="Script" path="res://world/map_view.gd" id="11_map_view"]
 [ext_resource type="Script" path="res://systems/stock/stock_system.gd" id="12_stock_system"]
+[ext_resource type="Script" path="res://systems/demand/demand_system.gd" id="13_demand_system"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -22,11 +22,11 @@ _death_scene = ExtResource("10_death_screen")
 [node name="TravelController" type="Node" parent="."]
 script = ExtResource("2_travel_controller")
 
-[node name="PriceModel" type="Node" parent="."]
-script = ExtResource("3_price_model")
-
 [node name="StockSystem" type="Node" parent="."]
 script = ExtResource("12_stock_system")
+
+[node name="DemandSystem" type="Node" parent="."]
+script = ExtResource("13_demand_system")
 
 [node name="Aging" type="Node" parent="."]
 script = ExtResource("4_aging")

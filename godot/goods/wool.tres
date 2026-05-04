@@ -13,3 +13,5 @@ volatility = 0.10
 weight = 4
 base_stock_cap = 4
 base_refill_rate = 0.2
+base_demand_cap = 4
+base_demand_decay_rate = 0.2

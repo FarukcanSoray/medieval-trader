@@ -102,13 +102,16 @@ func _ready() -> void:
 
 # Find a good the trader can afford at the current node. Returns a dict with
 # good_id + price, or empty dict if nothing is affordable.
+# Slice-8: prices are pulled via PricingMath; iterate stock_caps (the
+# catalogue marker for "this node sells this good") and read the live buy
+# price for each.
 func _pick_buyable_good() -> Dictionary:
 	var trader: TraderState = Game.trader
 	var node: NodeState = Game.world.get_node_by_id(trader.location_node_id)
 	if node == null:
 		return {}
-	for good_id: String in node.prices.keys():
-		var price: int = int(node.prices[good_id])
+	for good_id: String in node.stock_caps.keys():
+		var price: int = PricingMath.buy_price_for(Game.world, node, good_id)
 		if price > 0 and price <= trader.gold:
 			return {"good_id": good_id, "price": price}
 	return {}

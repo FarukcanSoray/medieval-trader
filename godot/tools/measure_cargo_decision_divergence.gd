@@ -157,7 +157,7 @@ func _run_sweep(goods: Array[Good], weights: Dictionary[String, int], cap: int, 
 				var to_node: NodeState = world.get_node_by_id(to_id)
 				assert(from_node != null and to_node != null,
 						"measure: edge references missing node in seed %d" % seed_value)
-				var optimal: Dictionary = _optimal_mix(goods, weights, cap, gold_cap, from_node, to_node)
+				var optimal: Dictionary = _optimal_mix(goods, weights, cap, gold_cap, world, from_node, to_node)
 				var profit: int = int(optimal["profit"])
 				if profit <= 0:
 					skipped_no_profit += 1
@@ -230,6 +230,7 @@ func _optimal_mix(
 	weights: Dictionary[String, int],
 	cap: int,
 	gold_cap: int,
+	world: WorldState,
 	from_node: NodeState,
 	to_node: NodeState,
 ) -> Dictionary:
@@ -242,8 +243,9 @@ func _optimal_mix(
 	var weights_arr: Array[int] = []
 	var max_qty: Array[int] = []
 	for good: Good in goods:
-		var bp: int = int(from_node.prices.get(good.id, 0))
-		var sp: int = int(to_node.prices.get(good.id, 0))
+		# Slice-8: pull-driven prices via PricingMath.
+		var bp: int = PricingMath.buy_price_for(world, from_node, good.id)
+		var sp: int = PricingMath.sell_price_for(world, to_node, good.id)
 		var w: int = weights[good.id]
 		buy_prices.append(bp)
 		spreads.append(sp - bp)

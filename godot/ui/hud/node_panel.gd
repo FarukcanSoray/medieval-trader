@@ -1,11 +1,19 @@
-## Per-node trade panel: lists each Good with price, owned qty, and Buy/Sell buttons.
-## Emits buy_requested/sell_requested for Tier 7 Main to wire into Trade. Refresh is
-## signal-driven on tick_advanced (price change), gold_changed and state_dirty (trade).
+## Per-node trade panel: lists each Good with buy price, sell price, supply bar,
+## demand bar, owned qty, and Buy/Sell buttons. Emits buy_requested /
+## sell_requested for Tier 7 Main to wire into Trade. Refresh is signal-driven
+## on tick_advanced (perturbation re-roll), gold_changed and state_dirty (trade).
+## Slice-8: prices are pulled via PricingMath on every refresh -- no stored
+## prices on NodeState.
 class_name NodePanel
 extends Control
 
 signal buy_requested(good_id: String)
 signal sell_requested(good_id: String)
+
+# Width of the supply / demand fill bars, in characters. 5 chars resolves the
+# 0..cap range into 6 buckets ('.....' through '#####') -- enough granularity
+# for at-a-glance reads without crowding the row. ASCII only (web export).
+const BAR_WIDTH: int = 5
 
 @onready var _title_label: Label = $VBox/TitleLabel
 @onready var _cart_label: Label = $VBox/CartLabel
@@ -43,8 +51,7 @@ func _refresh() -> void:
 		_build_rows()
 
 	# Slice-6 §8.1: pre-bootstrap defensive path -- if Game.goods is empty,
-	# render the placeholder cart label and skip cargo compute entirely.
-	# CargoMath needs goods_by_id to be populated; both fill in Game._ready.
+	# render the placeholder and skip cargo compute entirely.
 	if Game.goods.is_empty():
 		_cart_label.text = "Cart: -/-"
 		_title_label.text = "Node: -"
@@ -52,11 +59,8 @@ func _refresh() -> void:
 		return
 
 	# Slice-6 §8.1 / §3: single inventory walk per refresh, shared by the cart
-	# label and every row's buy-predicate. Per-row recompute would be O(N goods)
-	# inside an O(N goods) loop -- N is small but the spec is "compute once."
+	# label and every row's buy-predicate.
 	var current_load: int = CargoMath.compute_load(trader.inventory, Game.goods_by_id)
-	# Min weight is the "does anything fit?" threshold for the (almost full)
-	# suffix. Folded once here so _update_row doesn't need to re-derive it.
 	var min_good_weight: int = _compute_min_good_weight()
 	_cart_label.text = _format_cart_label(current_load, min_good_weight)
 
@@ -66,14 +70,14 @@ func _refresh() -> void:
 	if travelling or node == null:
 		_title_label.text = "Travelling..." if travelling else "Node: -"
 		_set_all_rows_disabled(true)
-		# Still show last-known prices/owned qty rather than blanking — predicates only.
+		# Still show last-known prices/owned qty rather than blanking -- predicates only.
 		for good: Good in Game.goods:
-			_update_row(good, node, trader, current_load, true)
+			_update_row(good, node, trader, world, current_load, true)
 		return
 
 	_title_label.text = node.display_name
 	for good: Good in Game.goods:
-		_update_row(good, node, trader, current_load, false)
+		_update_row(good, node, trader, world, current_load, false)
 
 # Slice-6 §8.1: cart label suffix is " (full)" at exact cap, " (almost full)"
 # when no good in the catalogue fits the remaining capacity, otherwise empty.
@@ -104,10 +108,11 @@ func _build_rows() -> void:
 
 		var price_label: Label = Label.new()
 		price_label.name = "PriceLabel"
-		# Slice-7 §8.1: widened from 96 to 160 to fit "[N left]" plus the
-		# longest tag " (plentiful)" without truncating. Web export's default
-		# font has wider digits than the editor preview suggests.
-		price_label.custom_minimum_size = Vector2(160, 0)
+		# Slice-8 §7: row carries B / S prices, tag, supply bar [#####], demand
+		# bar <#####>, [N left] integer. Wider min size to fit the new fields
+		# without truncation. Web export's default font has wider digits than
+		# the editor preview suggests.
+		price_label.custom_minimum_size = Vector2(280, 0)
 
 		var owned_label: Label = Label.new()
 		owned_label.name = "OwnedLabel"
@@ -131,7 +136,7 @@ func _build_rows() -> void:
 		_rows_container.add_child(row)
 		_rows[good.id] = row
 
-func _update_row(good: Good, node: NodeState, trader: TraderState, current_load: int, force_disabled: bool) -> void:
+func _update_row(good: Good, node: NodeState, trader: TraderState, world: WorldState, current_load: int, force_disabled: bool) -> void:
 	var row: Control = _rows.get(good.id)
 	if row == null:
 		return
@@ -146,55 +151,65 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, current_load:
 	owned_label.text = "x%d" % owned
 
 	if node == null:
-		price_label.text = "Price: -"
+		price_label.text = "B - S -"
 		buy_button.disabled = true
 		buy_button.tooltip_text = ""
 		sell_button.disabled = true
+		sell_button.tooltip_text = ""
 		return
 
-	var price: int = int(node.prices.get(good.id, 0))
+	# Slice-8 pull-driven prices.
+	var buy_price: int = PricingMath.buy_price_for(world, node, good.id)
+	var sell_price: int = PricingMath.sell_price_for(world, node, good.id)
 	var tag: String = ""
 	if good.id in node.produces:
 		tag = " (plentiful)"
 	elif good.id in node.consumes:
 		tag = " (scarce)"
-	# Slice-7 §8.1: append "[N left]" to the price line. Reads through the
-	# WorldState.stock_for accessor so the per-node dict layout stays
-	# isolated. Game.world is non-null on this branch -- we already checked
-	# trader/world above and node != null.
-	var stock: int = Game.world.stock_for(node.id, good.id)
-	price_label.text = "Price: %dg%s [%d left]" % [price, tag, stock]
+	# Slice-7 §8.1 + slice-8 §7: pool fills as ASCII bars. Supply bar uses
+	# square brackets, demand bar uses angle brackets so the two reads are
+	# distinguishable at a glance. [N left] retained as the slice-7 precise
+	# integer read.
+	var stock: int = world.stock_for(node.id, good.id)
+	var stock_cap: int = int(node.stock_caps.get(good.id, 0))
+	var supply_bar: String = _ascii_bar(stock, stock_cap, "[", "]")
+	var demand_pool: int = world.demand_for(node.id, good.id)
+	var demand_cap: int = int(node.demand_caps.get(good.id, 0))
+	var demand_bar: String = _ascii_bar(demand_pool, demand_cap, "<", ">")
+	price_label.text = "B %dg S %dg%s %s%s [%d left]" % [
+		buy_price, sell_price, tag, supply_bar, demand_bar, stock,
+	]
 
 	if force_disabled:
 		buy_button.disabled = true
 		buy_button.tooltip_text = ""
 		sell_button.disabled = true
+		sell_button.tooltip_text = ""
 		return
 
 	# Slice-6 §3 / §8.2: predicates evaluated here per slice rule -- never on
-	# click. fits_in_cart mirrors Trade.try_buy's defensive gate so the UI and
-	# runtime predicates stay aligned (the warning fires if they ever diverge).
-	# Slice-7: in_stock joins the predicate triplet -- the buy button is
-	# enabled only when all three gates clear.
-	var affordable: bool = price > 0 and trader.gold >= price
+	# click. Slice-7: in_stock joins the buy predicate triplet.
+	var affordable: bool = buy_price > 0 and trader.gold >= buy_price
 	var fits_in_cart: bool = current_load + good.weight <= WorldRules.CARGO_CAPACITY
 	var in_stock: bool = stock > 0
 	buy_button.disabled = not affordable or not fits_in_cart or not in_stock
-	buy_button.tooltip_text = _buy_tooltip(price, trader.gold, good.weight, current_load, affordable, fits_in_cart, in_stock)
-	sell_button.disabled = owned <= 0
+	buy_button.tooltip_text = _buy_tooltip(buy_price, trader.gold, good.weight, current_load, affordable, fits_in_cart, in_stock)
+	# Slice-8 §7.2: sell button disables when demand pool is saturated. Tooltip
+	# names the saturation explicitly so the player reads the refusal cause.
+	var has_owned: bool = owned > 0
+	var market_open: bool = demand_pool > 0
+	sell_button.disabled = not has_owned or not market_open
+	sell_button.tooltip_text = _sell_tooltip(has_owned, market_open)
 
-# Slice-7 §8.2: eight-case tooltip. Stock-out leads in priority because it is
-# the most informative refusal (cart and gold can change at this node; stock
-# can only come back via travel). Empty string when the buy is permitted; the
-# refusal string names every binding constraint. ASCII only -- no arrows, no
-# em-dashes (CLAUDE.md project rule). Single ASCII semicolon between phrases
-# when stock chains with cart/gold.
+# Slice-7 §8.2 / slice-8 §7.2: tooltip priority order is stock > cart > gold.
+# Empty string when the buy is permitted; the refusal string names every
+# binding constraint. ASCII only -- no arrows, no em-dashes (CLAUDE.md project
+# rule).
 func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, affordable: bool, fits_in_cart: bool, in_stock: bool) -> String:
 	if affordable and fits_in_cart and in_stock:
 		return ""
 	var gold_short: int = price - gold
 	var space_short: int = weight - (WorldRules.CARGO_CAPACITY - current_load)
-	# Stock-out branches first (priority order: stock, cart, gold per spec §8.2).
 	if not in_stock:
 		if not affordable and not fits_in_cart:
 			return "out of stock; need %dg and %d more cart space" % [gold_short, space_short]
@@ -203,22 +218,37 @@ func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, afforda
 		if not fits_in_cart:
 			return "out of stock; need %d more cart space" % space_short
 		return "out of stock"
-	# Stock OK; carry forward the slice-6 four-case shape unchanged.
 	if not affordable and not fits_in_cart:
 		return "Need %dg and %d more cart space" % [gold_short, space_short]
 	if not affordable:
 		return "Need %dg more" % gold_short
 	return "Need %d more cart space" % space_short
 
+# Slice-8 §7.2: sell tooltip distinguishes "no inventory" from "saturated
+# market." The latter is the new failure mode introduced by the demand pool;
+# the player needs the explicit text or the disabled button feels like a bug.
+func _sell_tooltip(has_owned: bool, market_open: bool) -> String:
+	if has_owned and market_open:
+		return ""
+	if not has_owned:
+		return ""
+	# has_owned but not market_open -> saturated.
+	return "local market saturated"
+
+# Returns a fixed-width ASCII fill bar of BAR_WIDTH chars, surrounded by the
+# given open/close characters. cap=0 renders an empty bar. Spec §7.2 -- supply
+# uses [#####], demand uses <#####>.
+func _ascii_bar(value: int, cap: int, open: String, close: String) -> String:
+	if cap <= 0:
+		return open + ".".repeat(BAR_WIDTH) + close
+	var filled: int = clampi(roundi(float(value) / float(cap) * float(BAR_WIDTH)), 0, BAR_WIDTH)
+	return open + "#".repeat(filled) + ".".repeat(BAR_WIDTH - filled) + close
+
 func _set_all_rows_disabled(disabled: bool) -> void:
 	for row: Control in _rows.values():
 		var buy_button: Button = row.get_node("BuyButton")
 		var sell_button: Button = row.get_node("SellButton")
 		buy_button.disabled = disabled
-		# Mirror _update_row's disabled-branch tooltip clearing so a future
-		# caller hitting this helper post-row-build does not leak stale
-		# refusal strings. Sell rows have no tooltip today; clearing is a
-		# defensive no-op for parity.
 		buy_button.tooltip_text = ""
 		sell_button.disabled = disabled
 		sell_button.tooltip_text = ""

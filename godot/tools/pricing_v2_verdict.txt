@@ -1,0 +1,853 @@
+=== slice-8 pricing-v2 harness ===
+seeds=200, warmup=20, measurement_ticks=8
+gates: gate-1 (pool-motion) >= 40%; gate-2 (spread) >= 30%; gate-3 (determinism) 100%
+
+=== gate 3 (determinism replay) ===
+seeds=100, passed=100, rate=100.0%, verdict=PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=3.0), gold=120) ===
+samples=102400, profitable_routes=15491, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.9%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 52.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 14%, mid 46%, saturated 40%
+  demand: drained 68%, mid 26%, saturated 6%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 14%
+  5-10%  : 33%
+  10-20% : 28%
+  > 20%  : 25%
+verdict: DIAG
+  pool-motion 56.9%, spread-above-noise 52.7% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=3.0), gold=200) ===
+samples=102400, profitable_routes=15472, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.0%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 52.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 15%, mid 45%, saturated 40%
+  demand: drained 69%, mid 26%, saturated 6%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 14%
+  5-10%  : 33%
+  10-20% : 28%
+  > 20%  : 25%
+verdict: PASS
+  gate 1 pool-motion 56.0% >= 40%: PASS; gate 2 spread-vs-noise 52.8% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=3.0), gold=400) ===
+samples=102400, profitable_routes=15559, skipped_worldgen=0
+
+gate 1 (pool-motion):       55.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 52.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 15%, mid 45%, saturated 40%
+  demand: drained 69%, mid 25%, saturated 6%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 14%
+  5-10%  : 33%
+  10-20% : 28%
+  > 20%  : 25%
+verdict: DIAG
+  pool-motion 55.8%, spread-above-noise 52.7% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=5.0), gold=120) ===
+samples=102400, profitable_routes=15634, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 52.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 17%, mid 46%, saturated 37%
+  demand: drained 64%, mid 27%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 14%
+  5-10%  : 34%
+  10-20% : 30%
+  > 20%  : 23%
+verdict: DIAG
+  pool-motion 57.2%, spread-above-noise 52.8% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=5.0), gold=200) ===
+samples=102400, profitable_routes=15598, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 53.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 18%, mid 45%, saturated 37%
+  demand: drained 64%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 13%
+  5-10%  : 33%
+  10-20% : 30%
+  > 20%  : 24%
+verdict: PASS
+  gate 1 pool-motion 56.3% >= 40%: PASS; gate 2 spread-vs-noise 53.6% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=5.0), gold=400) ===
+samples=102400, profitable_routes=15596, skipped_worldgen=0
+
+gate 1 (pool-motion):       55.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 44%, saturated 37%
+  demand: drained 65%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 13%
+  5-10%  : 33%
+  10-20% : 30%
+  > 20%  : 24%
+verdict: DIAG
+  pool-motion 55.8%, spread-above-noise 54.0% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=8.0), gold=120) ===
+samples=102400, profitable_routes=15746, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.4%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 21%, mid 48%, saturated 31%
+  demand: drained 58%, mid 28%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 13%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 23%
+verdict: DIAG
+  pool-motion 59.4%, spread-above-noise 54.0% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=8.0), gold=200) ===
+samples=102400, profitable_routes=15363, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 22%, mid 46%, saturated 31%
+  demand: drained 59%, mid 27%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 24%
+verdict: PASS
+  gate 1 pool-motion 58.2% >= 40%: PASS; gate 2 spread-vs-noise 54.8% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=8.0), gold=400) ===
+samples=102400, profitable_routes=15351, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 22%, mid 46%, saturated 31%
+  demand: drained 60%, mid 27%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 24%
+verdict: DIAG
+  pool-motion 58.3%, spread-above-noise 54.7% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=12.0), gold=120) ===
+samples=102400, profitable_routes=16359, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.5%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 25%, mid 47%, saturated 28%
+  demand: drained 54%, mid 28%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 23%
+verdict: DIAG
+  pool-motion 58.5%, spread-above-noise 54.7% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=12.0), gold=200) ===
+samples=102400, profitable_routes=15681, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 54.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 46%, saturated 28%
+  demand: drained 55%, mid 27%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 24%
+verdict: PASS
+  gate 1 pool-motion 57.6% >= 40%: PASS; gate 2 spread-vs-noise 54.8% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.1, consumer=12.0), gold=400) ===
+samples=102400, profitable_routes=15550, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 55.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 46%, saturated 28%
+  demand: drained 55%, mid 27%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 33%
+  10-20% : 31%
+  > 20%  : 24%
+verdict: DIAG
+  pool-motion 57.8%, spread-above-noise 55.0% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=3.0), gold=120) ===
+samples=102400, profitable_routes=17768, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.1%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 14%, mid 46%, saturated 40%
+  demand: drained 65%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 12%
+  5-10%  : 27%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: DIAG
+  pool-motion 57.2%, spread-above-noise 61.1% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=3.0), gold=200) ===
+samples=102400, profitable_routes=17685, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.4%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 15%, mid 45%, saturated 40%
+  demand: drained 66%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: PASS
+  gate 1 pool-motion 56.3% >= 40%: PASS; gate 2 spread-vs-noise 61.4% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=3.0), gold=400) ===
+samples=102400, profitable_routes=17730, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.0%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.1%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 16%, mid 45%, saturated 40%
+  demand: drained 66%, mid 25%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: DIAG
+  pool-motion 56.0%, spread-above-noise 61.1% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=5.0), gold=120) ===
+samples=102400, profitable_routes=17884, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 60.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 18%, mid 46%, saturated 36%
+  demand: drained 60%, mid 27%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 26%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 57.6%, spread-above-noise 60.8% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=5.0), gold=200) ===
+samples=102400, profitable_routes=17789, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 45%, saturated 36%
+  demand: drained 61%, mid 26%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 27%
+  > 20%  : 35%
+verdict: PASS
+  gate 1 pool-motion 56.6% >= 40%: PASS; gate 2 spread-vs-noise 61.6% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=5.0), gold=400) ===
+samples=102400, profitable_routes=17755, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.9%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 44%, saturated 36%
+  demand: drained 62%, mid 26%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 27%
+  > 20%  : 35%
+verdict: DIAG
+  pool-motion 56.1%, spread-above-noise 61.9% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=8.0), gold=120) ===
+samples=102400, profitable_routes=17964, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.7%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 22%, mid 48%, saturated 31%
+  demand: drained 55%, mid 28%, saturated 17%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 59.7%, spread-above-noise 61.6% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=8.0), gold=200) ===
+samples=102400, profitable_routes=17532, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.5%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.5%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 23%, mid 47%, saturated 31%
+  demand: drained 56%, mid 27%, saturated 17%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 35%
+verdict: PASS
+  gate 1 pool-motion 58.5% >= 40%: PASS; gate 2 spread-vs-noise 62.5% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=8.0), gold=400) ===
+samples=102400, profitable_routes=17520, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.3%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 23%, mid 47%, saturated 31%
+  demand: drained 56%, mid 27%, saturated 17%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 35%
+verdict: DIAG
+  pool-motion 58.6%, spread-above-noise 62.3% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=12.0), gold=120) ===
+samples=102400, profitable_routes=18505, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 25%, mid 47%, saturated 28%
+  demand: drained 50%, mid 28%, saturated 21%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 33%
+verdict: DIAG
+  pool-motion 58.8%, spread-above-noise 61.6% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=12.0), gold=200) ===
+samples=102400, profitable_routes=17764, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.9%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 46%, saturated 28%
+  demand: drained 51%, mid 27%, saturated 21%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: PASS
+  gate 1 pool-motion 57.9% >= 40%: PASS; gate 2 spread-vs-noise 62.2% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.2, consumer=12.0), gold=400) ===
+samples=102400, profitable_routes=17649, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 47%, saturated 28%
+  demand: drained 52%, mid 27%, saturated 21%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 58.1%, spread-above-noise 62.2% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=3.0), gold=120) ===
+samples=102400, profitable_routes=17399, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.1%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 14%, mid 47%, saturated 38%
+  demand: drained 64%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: DIAG
+  pool-motion 57.8%, spread-above-noise 61.1% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=3.0), gold=200) ===
+samples=102400, profitable_routes=17317, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.3%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 15%, mid 46%, saturated 39%
+  demand: drained 65%, mid 26%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: PASS
+  gate 1 pool-motion 57.2% >= 40%: PASS; gate 2 spread-vs-noise 61.3% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=3.0), gold=400) ===
+samples=102400, profitable_routes=17342, skipped_worldgen=0
+
+gate 1 (pool-motion):       56.7%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 16%, mid 46%, saturated 38%
+  demand: drained 65%, mid 25%, saturated 9%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 25%
+  > 20%  : 36%
+verdict: DIAG
+  pool-motion 56.7%, spread-above-noise 61.2% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=5.0), gold=120) ===
+samples=102400, profitable_routes=17544, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.4%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 60.9%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 18%, mid 47%, saturated 35%
+  demand: drained 60%, mid 27%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 27%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 58.4%, spread-above-noise 60.9% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=5.0), gold=200) ===
+samples=102400, profitable_routes=17429, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.7%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 46%, saturated 35%
+  demand: drained 61%, mid 27%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 27%
+  > 20%  : 35%
+verdict: PASS
+  gate 1 pool-motion 57.7% >= 40%: PASS; gate 2 spread-vs-noise 61.7% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=5.0), gold=400) ===
+samples=102400, profitable_routes=17403, skipped_worldgen=0
+
+gate 1 (pool-motion):       57.0%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 45%, saturated 35%
+  demand: drained 61%, mid 26%, saturated 13%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 27%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 57.0%, spread-above-noise 61.7% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=8.0), gold=120) ===
+samples=102400, profitable_routes=17618, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.7%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 22%, mid 48%, saturated 29%
+  demand: drained 54%, mid 28%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 60.1%, spread-above-noise 61.7% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=8.0), gold=200) ===
+samples=102400, profitable_routes=17238, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.5%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 23%, mid 47%, saturated 30%
+  demand: drained 55%, mid 27%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 35%
+verdict: PASS
+  gate 1 pool-motion 59.2% >= 40%: PASS; gate 2 spread-vs-noise 62.5% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=8.0), gold=400) ===
+samples=102400, profitable_routes=17234, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 23%, mid 47%, saturated 30%
+  demand: drained 56%, mid 27%, saturated 17%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 59.1%, spread-above-noise 62.2% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=12.0), gold=120) ===
+samples=102400, profitable_routes=18240, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.3%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 25%, mid 48%, saturated 27%
+  demand: drained 50%, mid 28%, saturated 22%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 29%
+  > 20%  : 33%
+verdict: DIAG
+  pool-motion 59.3%, spread-above-noise 61.3% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=12.0), gold=200) ===
+samples=102400, profitable_routes=17515, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.7%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 47%, saturated 27%
+  demand: drained 50%, mid 28%, saturated 22%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: PASS
+  gate 1 pool-motion 58.7% >= 40%: PASS; gate 2 spread-vs-noise 62.0% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.4, consumer=12.0), gold=400) ===
+samples=102400, profitable_routes=17388, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.1%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 47%, saturated 27%
+  demand: drained 51%, mid 27%, saturated 22%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 58.8%, spread-above-noise 62.1% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=3.0), gold=120) ===
+samples=102400, profitable_routes=16928, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 16%, mid 49%, saturated 36%
+  demand: drained 63%, mid 27%, saturated 10%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 25%
+  > 20%  : 37%
+verdict: DIAG
+  pool-motion 59.3%, spread-above-noise 62.0% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=3.0), gold=200) ===
+samples=102400, profitable_routes=16719, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.9%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 16%, mid 47%, saturated 36%
+  demand: drained 64%, mid 26%, saturated 10%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 26%
+  > 20%  : 36%
+verdict: PASS
+  gate 1 pool-motion 58.6% >= 40%: PASS; gate 2 spread-vs-noise 61.9% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=3.0), gold=400) ===
+samples=102400, profitable_routes=16750, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 17%, mid 47%, saturated 36%
+  demand: drained 64%, mid 26%, saturated 10%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 26%
+  > 20%  : 36%
+verdict: DIAG
+  pool-motion 58.3%, spread-above-noise 61.6% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=5.0), gold=120) ===
+samples=102400, profitable_routes=17089, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.4%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 19%, mid 49%, saturated 32%
+  demand: drained 59%, mid 28%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 28%
+  10-20% : 27%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 60.1%, spread-above-noise 61.4% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=5.0), gold=200) ===
+samples=102400, profitable_routes=16851, skipped_worldgen=0
+
+gate 1 (pool-motion):       59.3%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 20%, mid 48%, saturated 32%
+  demand: drained 59%, mid 27%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 11%
+  5-10%  : 27%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: PASS
+  gate 1 pool-motion 59.3% >= 40%: PASS; gate 2 spread-vs-noise 62.2% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=5.0), gold=400) ===
+samples=102400, profitable_routes=16774, skipped_worldgen=0
+
+gate 1 (pool-motion):       58.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 20%, mid 47%, saturated 33%
+  demand: drained 60%, mid 26%, saturated 14%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 58.6%, spread-above-noise 62.2% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=8.0), gold=120) ===
+samples=102400, profitable_routes=17273, skipped_worldgen=0
+
+gate 1 (pool-motion):       61.6%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.0%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 23%, mid 50%, saturated 27%
+  demand: drained 53%, mid 29%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 28%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 61.6%, spread-above-noise 62.0% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=8.0), gold=200) ===
+samples=102400, profitable_routes=16699, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.5%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.8%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 24%, mid 49%, saturated 27%
+  demand: drained 54%, mid 28%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 27%
+  10-20% : 29%
+  > 20%  : 34%
+verdict: PASS
+  gate 1 pool-motion 60.5% >= 40%: PASS; gate 2 spread-vs-noise 62.8% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=8.0), gold=400) ===
+samples=102400, profitable_routes=16661, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.5%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.5%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 24%, mid 49%, saturated 28%
+  demand: drained 54%, mid 27%, saturated 18%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 29%
+  > 20%  : 34%
+verdict: DIAG
+  pool-motion 60.5%, spread-above-noise 62.5% (gold=400, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=12.0), gold=120) ===
+samples=102400, profitable_routes=17948, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.8%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 61.6%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 26%, mid 49%, saturated 25%
+  demand: drained 48%, mid 29%, saturated 23%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 29%
+  > 20%  : 33%
+verdict: DIAG
+  pool-motion 60.8%, spread-above-noise 61.6% (gold=120, diagnostic)
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=12.0), gold=200) ===
+samples=102400, profitable_routes=17020, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.1%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.2%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 27%, mid 48%, saturated 25%
+  demand: drained 49%, mid 28%, saturated 23%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 29%
+  > 20%  : 33%
+verdict: PASS
+  gate 1 pool-motion 60.1% >= 40%: PASS; gate 2 spread-vs-noise 62.2% >= 30%: PASS
+
+=== slice-8 pricing-v2 measurement (decay=(producer=0.8, consumer=12.0), gold=400) ===
+samples=102400, profitable_routes=16927, skipped_worldgen=0
+
+gate 1 (pool-motion):       60.2%   [floor: >= 40%]
+gate 2 (spread > 2*perturb): 62.1%   [floor: >= 30%]
+
+pool fill histogram:
+  supply: drained 27%, mid 49%, saturated 25%
+  demand: drained 50%, mid 28%, saturated 23%
+spread histogram (%% of base_price, profitable routes only):
+  < 5%   : 10%
+  5-10%  : 28%
+  10-20% : 29%
+  > 20%  : 33%
+verdict: DIAG
+  pool-motion 60.2%, spread-above-noise 62.1% (gold=400, diagnostic)
+
+=== sanity baselines (gold=200) ===
+--- sanity baseline: pools frozen at cap (decay=0, no warm-up trade) ---
+  pool-motion 0.0% (gold=200, samples=9600) -- expect FAIL gate 1 (< 40%)
+
+--- sanity baseline: pools drained instantly (decay=999, full warm-up trade) ---
+  pool-motion 0.0% (gold=200, samples=9600) -- expect FAIL gate 1 (< 40%)
+
+=== sweep summary (gold=200 gating only) ===
+(decay_producer, decay_consumer) -> verdict
+(producer=0.1, consumer=3.0) -> PASS  [pool-motion 56.0%, spread-above-noise 52.8%]
+(producer=0.1, consumer=5.0) -> PASS  [pool-motion 56.3%, spread-above-noise 53.6%]
+(producer=0.1, consumer=8.0) -> PASS  [pool-motion 58.2%, spread-above-noise 54.8%]
+(producer=0.1, consumer=12.0) -> PASS  [pool-motion 57.6%, spread-above-noise 54.8%]
+(producer=0.2, consumer=3.0) -> PASS  [pool-motion 56.3%, spread-above-noise 61.4%]
+(producer=0.2, consumer=5.0) -> PASS  [pool-motion 56.6%, spread-above-noise 61.6%]
+(producer=0.2, consumer=8.0) -> PASS  [pool-motion 58.5%, spread-above-noise 62.5%]
+(producer=0.2, consumer=12.0) -> PASS  [pool-motion 57.9%, spread-above-noise 62.2%]
+(producer=0.4, consumer=3.0) -> PASS  [pool-motion 57.2%, spread-above-noise 61.3%]
+(producer=0.4, consumer=5.0) -> PASS  [pool-motion 57.7%, spread-above-noise 61.7%]
+(producer=0.4, consumer=8.0) -> PASS  [pool-motion 59.2%, spread-above-noise 62.5%]
+(producer=0.4, consumer=12.0) -> PASS  [pool-motion 58.7%, spread-above-noise 62.0%]
+(producer=0.8, consumer=3.0) -> PASS  [pool-motion 58.6%, spread-above-noise 61.9%]
+(producer=0.8, consumer=5.0) -> PASS  [pool-motion 59.3%, spread-above-noise 62.2%]
+(producer=0.8, consumer=8.0) -> PASS  [pool-motion 60.5%, spread-above-noise 62.8%]
+(producer=0.8, consumer=12.0) -> PASS  [pool-motion 60.1%, spread-above-noise 62.2%]
+
+=== overall ===
+gate 3 (determinism): PASS
+any sweep tuple PASS at gold=200: YES
+verdict: PASS (slice ships at any sweep tuple marked PASS above)

@@ -128,15 +128,25 @@ func _find_edge(a: String, b: String) -> EdgeState:
 			return edge
 	return null
 
-# Snapshot helper for the encounter-roll call (spec §5.7 -- "origin price" reads
-# world.nodes[from_id].prices at roll time). Returns the dict directly; the
-# resolver only reads from it. Empty dict on missing node is a defensive fallback
-# (the caller already validated the edge exists, so the from_id node should too).
+# Snapshot helper for the encounter-roll call (slice-4 spec §5.7 -- "origin
+# price" reads the per-node price for each good in the trader's inventory at
+# roll time, used to pick the most valuable target for goods-loss). Slice-8:
+# prices are pulled via PricingMath; this helper materialises a one-shot dict
+# mapping inventory good_ids to their current buy price at the origin so the
+# encounter resolver's signature (Dictionary[String, int]) is unchanged.
+# Empty dict on missing node is a defensive fallback.
 func _origin_prices_for_leg(from_id: String) -> Dictionary[String, int]:
 	var node: NodeState = _world.get_node_by_id(from_id)
+	var snapshot: Dictionary[String, int] = {}
 	if node == null:
-		return {} as Dictionary[String, int]
-	return node.prices
+		return snapshot
+	for good_id: String in _trader.inventory.keys():
+		# Only inventory ids matter -- the resolver picks the trader's
+		# most-valuable carried good. Goods the trader doesn't own don't
+		# influence the roll, so we skip the rest of the catalogue.
+		var price: int = PricingMath.buy_price_for(_world, node, good_id)
+		snapshot[good_id] = price
+	return snapshot
 
 func _push_travel_history(to_id: String, cost: int) -> void:
 	var entry: HistoryEntry = HistoryEntry.new()

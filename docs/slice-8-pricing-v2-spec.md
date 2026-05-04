@@ -153,7 +153,7 @@ Pull-driven prices mean save -> load -> save is byte-identical iff (a) pool dict
 ```
 buy_curve         = base_price * (1.0 + (stock_cap - stock) / stock_cap)
 buy_perturbation  = randf_range(-PERTURBATION_FRACTION, +PERTURBATION_FRACTION)
-                    where rng.seed = hash([world_seed, tick, node_id, good_id, "buy"])
+                    where rng.seed = mix(world_seed, tick, node_id, good_id, SIDE_BUY)  // see §5.4
 buy_price_raw     = buy_curve * (1.0 + buy_perturbation)
 buy_price         = clampi(roundi(buy_price_raw), good.floor_price, good.ceiling_price)
 ```
@@ -172,7 +172,7 @@ When `stock > stock_cap` (impossible under slice-7's `mini(cap, ...)` clamp): fo
 ```
 sell_curve        = base_price * (1.0 + demand_pool / demand_cap)
 sell_perturbation = randf_range(-PERTURBATION_FRACTION, +PERTURBATION_FRACTION)
-                    where rng.seed = hash([world_seed, tick, node_id, good_id, "sell"])
+                    where rng.seed = mix(world_seed, tick, node_id, good_id, SIDE_SELL)  // see §5.4
 sell_price_raw    = sell_curve * (1.0 + sell_perturbation)
 sell_price        = clampi(roundi(sell_price_raw), good.floor_price, good.ceiling_price)
 ```
@@ -205,18 +205,21 @@ Slice-3 made bias a multiplicative anchor (`base_price * (1 + bias)`) feeding th
 
 ### 5.4 Stochastic perturbation seeding
 
-Perturbation seed shape:
+Perturbation seed shape -- a deterministic mix of five tuple components into a single 64-bit RNG seed:
 
 ```
-buy_seed  = hash([world_seed, tick, node_id, good_id, "buy"])
-sell_seed = hash([world_seed, tick, node_id, good_id, "sell"])
+buy_seed  = mix64(world_seed, tick, node_id.hash(), good_id.hash(), SIDE_MIX_BUY)
+sell_seed = mix64(world_seed, tick, node_id.hash(), good_id.hash(), SIDE_MIX_SELL)
 ```
 
-**Critical invariants:**
+The combiner is **normative on intent, not on bit-exact output.** Any deterministic 64-bit mix that satisfies the invariants below is conformant; the implementation lives in `PricingMath._perturbation` / `_mix64` (slice-8 chose a splitmix64-style xorshift-multiply finaliser to avoid per-call Array literal allocation, supersession-ed from the original `hash([...])` form mid-slice -- see DS note `slice-8-perturbation-seed-mix-supersedes-hash-array`). `SIDE_MIX_BUY` and `SIDE_MIX_SELL` are distinct high-entropy 64-bit constants that namespace the buy and sell sides.
+
+**Critical invariants (load-bearing -- any conformant mix must preserve all of these):**
 - Seed includes `tick`. Perturbation re-rolls every travel tick (consistent with slice-3's per-tick drift cadence -- the player's on-screen experience of "prices change over time" survives).
-- Seed includes `"buy"` or `"sell"` namespace. Buy and sell perturbations decorrelate; without the namespace, both sides would jiggle in lockstep and the spread (sell - buy) at any pool-neutral state would be artificially stable.
-- Seed does **NOT** include any per-buy or per-sell counter. Buying does not re-roll the perturbation. The price seen on the buy click is the price computed for the current (tick, node, good, "buy") tuple; clicking again before tick advance reads the same perturbation.
+- Seed includes a buy-vs-sell namespace term. Buy and sell perturbations decorrelate; without the namespace, both sides would jiggle in lockstep and the spread (sell - buy) at any pool-neutral state would be artificially stable.
+- Seed does **NOT** include any per-buy or per-sell counter. Buying does not re-roll the perturbation. The price seen on the buy click is the price computed for the current (tick, node, good, side) tuple; clicking again before tick advance reads the same perturbation.
 - Seed does **NOT** include pool fill values. Pool state already enters via the curve; including it in the seed would create a discontinuous perturbation that re-rolls per buy, defeating the legibility of "the perturbation is the world breathing."
+- The combiner allocates **no per-call heap** -- no `RandomNumberGenerator.new()`, no Array literal, no String concatenation. PricingMath is on the hot path (NodePanel paint, Trade verbs, harness inner loop ~5M iterations).
 
 **Application.** Perturbation is `rng.randf_range(-PERTURBATION_FRACTION, +PERTURBATION_FRACTION)` and applied multiplicatively to the curve output (`curve * (1 + perturbation)`), not additively. Multiplicative scales with good identity (a 3% jiggle on wool's 12g is 0.36g; on iron's 22g is 0.66g). Clamp happens after perturbation so a perturbed-up max hits the ceiling, not a perturbed-up base then re-perturbed.
 
@@ -449,7 +452,7 @@ New strings:
 - **Price floor hit during sell into saturated demand.** With base=7 (salt) and demand_pool=0, `sell_price_curve = 7 * 1 = 7`. Perturbation ±5% gives `[6.65, 7.35]` -> clamped to `[6, 7]` after roundi. `floor_price=3` (from existing `salt.tres`); never binds. **Floor only binds for goods authored with `floor_price > base * (1 - PERTURBATION_FRACTION)`.** None of the current goods author this way, so the floor is effectively decorative under slice-8. Floor is kept on `Good.tres` as a defensive rail; it would bind if a future good had volatility-shaped scarcity asymmetry. **No assert; documented edge case.**
 - **Price ceiling hit on drained supply with high perturbation.** With base=22 (iron), drained supply, +5% perturbation: `22 * 2 * 1.05 = 46.2 -> clampi to 25 (ceiling)`. Player sees `25g` which is the ceiling, not the formula output. **This is the binding case; the curve is "soft" at the ceiling.** Designer's read: this is the intended "iron is expensive when scarce, but not unboundedly expensive" texture. Ceilings should bind on at least some configurations to keep prices legible.
 - **Decay during travel ticks.** Demand decay runs only on travel ticks (§5.6, mirrors slice-7 supply refill). Player who never travels: pools never recover. Player travelling A->B->A in 6 ticks: B's demand pool decays by `6 * decay_rate` units toward cap during the round trip. This is the symmetric "world breathes during travel" texture.
-- **Determinism replay across save/load.** Pull-driven prices: save->load->save is byte-identical iff (a) pool state round-trips through JSON exactly (already true), (b) the `tick` value round-trips (true), (c) the perturbation seed function is `hash([world_seed, tick, node_id, good_id, side])` with no hidden state. Save format drops `prices` (§3.3(a)) so there is no stored-but-derivable field to drift. The B1 invariant harness must be extended to verify this -- §10.4.
+- **Determinism replay across save/load.** Pull-driven prices: save->load->save is byte-identical iff (a) pool state round-trips through JSON exactly (already true), (b) the `tick` value round-trips (true), (c) the perturbation seed function is a pure deterministic mix of (world_seed, tick, node_id, good_id, side) per §5.4 with no hidden state. Save format drops `prices` (§3.3(a)) so there is no stored-but-derivable field to drift. The B1 invariant harness must be extended to verify this -- §10.4.
 - **Player buys into a node with `stock=0` and `demand_pool=cap` (mismatched pools).** Possible under heavy player activity: someone bought everything, but the demand pool hasn't been touched. Buy disabled (stock=0). Sell at max sell price. **This is the intended "I drained supply, now I have nothing to buy with -- but I CAN sell here at top dollar" texture.** Read: the pools are independent; a node can be a great sell target even when supply is exhausted.
 - **Two players saving and loading on the same world (single-player, but conceptually).** Not applicable -- this is a single-player offline game. Saved state is the player's only state.
 - **Web-export-specific (HTML5).** Pull-driven prices add zero new heap allocations per tick (no per-tick price recompute). UI re-renders on tick_advanced, gold_changed, state_dirty just as today; the cost is the per-row formula evaluation (cheap -- 7 nodes * 4 goods * 2 sides = 56 formula evals per refresh). No new web-export concern.

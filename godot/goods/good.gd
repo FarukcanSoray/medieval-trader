@@ -23,3 +23,13 @@ extends Resource
 # Authored uniformly (0.2 = 1 unit / 5 ticks at neutral) per spec §6.1.
 # Range 0.01..10.0 -- 0.0 is the no-refill sanity baseline only.
 @export_range(0.01, 10.0) var base_refill_rate: float = 0.2
+# Slice-8 demand-cap baseline: per-(node, good) cap is derived at world-gen
+# time as base_demand_cap * tag_multiplier (consumer=4.0, neutral=1.0,
+# producer=0.25). Mirrors base_stock_cap exactly. Authored uniformly across
+# goods per spec §5.7. Range 1..100.
+@export_range(1, 100) var base_demand_cap: int = 4
+# Slice-8 demand-decay baseline: per-(node, good) rate is derived at world-gen
+# time as base_demand_decay_rate * tag_multiplier (consumer=5.0, neutral=1.0,
+# producer=0.2). Mirrors base_refill_rate. Range 0.01..10.0 -- 0.0 is the
+# no-decay sanity baseline only.
+@export_range(0.01, 10.0) var base_demand_decay_rate: float = 0.2

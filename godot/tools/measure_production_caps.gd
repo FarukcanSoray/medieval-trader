@@ -192,7 +192,7 @@ func _run_sweep(
 					var to_id: String = edge.b_id if direction == 0 else edge.a_id
 					var from_node: NodeState = world.get_node_by_id(from_id)
 					var to_node: NodeState = world.get_node_by_id(to_id)
-					var optimal: Dictionary = _optimal_mix(goods, gold_cap, from_node, to_node)
+					var optimal: Dictionary = _optimal_mix(goods, gold_cap, world, from_node, to_node)
 					var profit: int = int(optimal["profit"])
 					if profit <= 0:
 						skipped_no_profit += 1
@@ -246,7 +246,7 @@ func _simulate_tick(world: WorldState, goods: Array[Good], gold_cap: int) -> voi
 			var to_id: String = edge.b_id if direction == 0 else edge.a_id
 			var from_node: NodeState = world.get_node_by_id(from_id)
 			var to_node: NodeState = world.get_node_by_id(to_id)
-			var optimal: Dictionary = _optimal_mix(goods, gold_cap, from_node, to_node)
+			var optimal: Dictionary = _optimal_mix(goods, gold_cap, world, from_node, to_node)
 			if int(optimal["profit"]) <= 0:
 				continue
 			var qty_by_good: Dictionary[String, int] = optimal["qty_by_good"]
@@ -286,10 +286,11 @@ func _simulate_tick(world: WorldState, goods: Array[Good], gold_cap: int) -> voi
 func _optimal_mix(
 	goods: Array[Good],
 	gold_cap: int,
+	world: WorldState,
 	from_node: NodeState,
 	to_node: NodeState,
 ) -> Dictionary:
-	var first: Dictionary = _knapsack(goods, gold_cap, from_node, to_node, false)
+	var first: Dictionary = _knapsack(goods, gold_cap, world, from_node, to_node, false)
 	if int(first["profit"]) <= 0:
 		return {"qty_by_good": first["qty_by_good"], "profit": 0, "headline_cap_bound": false}
 	# Headline good = highest weight-share in the optimal cart.
@@ -305,7 +306,7 @@ func _optimal_mix(
 	if headline_good == "":
 		return {"qty_by_good": qty_by_good, "profit": int(first["profit"]), "headline_cap_bound": false}
 	# Re-run with the headline good's stock cap relaxed.
-	var second: Dictionary = _knapsack_with_uncapped(goods, gold_cap, from_node, to_node, headline_good)
+	var second: Dictionary = _knapsack_with_uncapped(goods, gold_cap, world, from_node, to_node, headline_good)
 	var headline_qty_first: int = int(qty_by_good.get(headline_good, 0))
 	var second_qty_by_good: Dictionary[String, int] = second["qty_by_good"]
 	var headline_qty_second: int = int(second_qty_by_good.get(headline_good, 0))
@@ -317,9 +318,11 @@ func _optimal_mix(
 	}
 
 # Knapsack subject to cargo, gold, and per-good source-stock caps.
+# Slice-8: prices are pulled via PricingMath rather than read from node.prices.
 func _knapsack(
 	goods: Array[Good],
 	gold_cap: int,
+	world: WorldState,
 	from_node: NodeState,
 	to_node: NodeState,
 	_unused: bool,
@@ -329,8 +332,8 @@ func _knapsack(
 	var buy_prices: Array[int] = []
 	var spreads: Array[int] = []
 	for good: Good in goods:
-		var bp: int = int(from_node.prices.get(good.id, 0))
-		var sp: int = int(to_node.prices.get(good.id, 0))
+		var bp: int = PricingMath.buy_price_for(world, from_node, good.id)
+		var sp: int = PricingMath.sell_price_for(world, to_node, good.id)
 		var w: int = good.weight
 		buy_prices.append(bp)
 		spreads.append(sp - bp)
@@ -344,12 +347,11 @@ func _knapsack(
 			max_qty.append(mini(stock, mini(by_cap, by_gold)))
 	return _bruteforce(goods, weights_arr, buy_prices, spreads, max_qty, gold_cap)
 
-# Same as _knapsack but with one good's stock cap relaxed -- used to detect
-# whether the original cap was binding. Stock for the relaxed good is set to the
-# tighter of (cargo / weight, gold / price) so the knapsack itself stays bounded.
+# Same as _knapsack but with one good's stock cap relaxed.
 func _knapsack_with_uncapped(
 	goods: Array[Good],
 	gold_cap: int,
+	world: WorldState,
 	from_node: NodeState,
 	to_node: NodeState,
 	uncapped_good_id: String,
@@ -359,8 +361,8 @@ func _knapsack_with_uncapped(
 	var buy_prices: Array[int] = []
 	var spreads: Array[int] = []
 	for good: Good in goods:
-		var bp: int = int(from_node.prices.get(good.id, 0))
-		var sp: int = int(to_node.prices.get(good.id, 0))
+		var bp: int = PricingMath.buy_price_for(world, from_node, good.id)
+		var sp: int = PricingMath.sell_price_for(world, to_node, good.id)
 		var w: int = good.weight
 		buy_prices.append(bp)
 		spreads.append(sp - bp)
