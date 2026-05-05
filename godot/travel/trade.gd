@@ -97,6 +97,21 @@ func try_sell(good_id: String) -> bool:
 	# world-side mutation analogous to try_buy's decrement_stock.
 	_world.decrement_demand(node.id, good_id)
 	_trader.apply_gold_delta(price, Game.emit_gold_changed, Game.emit_state_dirty)
+	# Slice-8.2 partial-conservation roll. Seeded RNG -- per-NodeState
+	# sell_seed_counter disambiguates same-tick-same-node sells (Architect Call 1
+	# in docs/slice-8-2-architect-handoff.md §8). Counter increments after the
+	# hash so the first sell at a fresh node uses counter=0 deterministically.
+	# CONSERVATION_FRACTION = 0.0 reduces this to a no-op debug path.
+	var roll_seed: int = hash([
+		_world.world_seed, _world.tick, node.id, good_id,
+		node.sell_seed_counter,
+		"conservation",
+	])
+	node.sell_seed_counter += 1
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = roll_seed
+	if rng.randf() < WorldRules.CONSERVATION_FRACTION:
+		_world.decrement_demand_cap_permanent(node.id, good_id, 1)
 	_push_history("sell", good_id, price)
 	# Slice-5.x Bug A commit point.
 	var save_service: SaveService = Game.get_node("SaveService") as SaveService

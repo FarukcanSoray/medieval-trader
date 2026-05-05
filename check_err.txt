@@ -1,0 +1,12 @@
+ERROR: Cannot represent 0x9E3779B97F4A7C15 as a 64-bit signed integer, since the value is too large.
+   at: hex_to_int (core/string/ustring.cpp:2238)
+ERROR: Cannot represent 0xBB67AE8584CAA73B as a 64-bit signed integer, since the value is too large.
+   at: hex_to_int (core/string/ustring.cpp:2238)
+ERROR: Cannot represent 0xBF58476D1CE4E5B9 as a 64-bit signed integer, since the value is too large.
+   at: hex_to_int (core/string/ustring.cpp:2238)
+ERROR: Cannot represent 0x94D049BB133111EB as a 64-bit signed integer, since the value is too large.
+   at: hex_to_int (core/string/ustring.cpp:2238)
+SCRIPT ERROR: Compile Error: Identifier not found: Game
+   at: GDScript::reload (res://travel/trade.gd:36)
+ERROR: Failed to load script "res://travel/trade.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:3041)

@@ -69,7 +69,14 @@ const REFILL_MULT_SCARCE: float = 0.2
 const DEMAND_CAP_MULT_PRODUCER: float = 0.25
 const DEMAND_CAP_MULT_NEUTRAL: float = 1.0
 const DEMAND_CAP_MULT_CONSUMER: float = 4.0
-const DEMAND_DECAY_MULT_PRODUCER: float = 0.2
+# Slice-8.2.1 retune: producer decay zeroed so producer demand is structurally
+# inert (pool starts at 0 via DEMAND_INITIAL_FILL_MULT_PRODUCER=0.0 and never
+# grows). Sell price at producer for its produced good = base; buy price at
+# full stock = base; same-node spread = 0. Closes the within-node arbitrage
+# breach Director identified after slice-8.2 ship: producer ratio 0.30 made
+# sell = 1.30 * base while buy = base, profitable without travel. Decision:
+# 2026-05-05-slice-8-2-1-retune-within-node-spread-shadow.
+const DEMAND_DECAY_MULT_PRODUCER: float = 0.0
 const DEMAND_DECAY_MULT_NEUTRAL: float = 1.0
 const DEMAND_DECAY_MULT_CONSUMER: float = 5.0
 # Slice-8.1 §X: tag-gated initial demand fill at world-gen time. These are the
@@ -87,6 +94,46 @@ const DEMAND_INITIAL_FILL_MULT_CONSUMER: float = 1.0
 # seeded as hash([world_seed, tick, node_id, good_id, side]). Decision:
 # 2026-05-04-slice-8-pool-curve-formula-locked.
 const PERTURBATION_FRACTION: float = 0.05
+
+# Slice-8.2 demand-drain multipliers. See docs/slice-8-2-demand-reshape-spec.md §5.
+# Per-(node, good) drain rate is authored at gen time as
+# Good.base_demand_decay_rate * tag drain mult, mirroring the decay-rate authoring
+# pattern. Drain is proportional to fill (drain_units = drain_rate * pool/cap),
+# so the equilibrium ratio pool*/cap = decay_mult / drain_mult cancels the
+# base_demand_decay_rate factor and is purely the ratio of the two tag mults.
+#
+# Slice-8.2.1 retune. Numbers chosen so the steady-state same-node price
+# spread (= ratio * base_price) sits inside the travel-cost shadow of the
+# cheapest edge (3 * 3 = 9 gold) for every good in the catalogue -- closing
+# the kernel-collision breach Director identified after the original 8.2
+# numbers (0.30 / 0.60 / 0.85) shipped with iron same-node spread at
+# consumer = 0.85 * 22 = 18.7 gold, decoupling profit from travel.
+#
+# Continuous-math targets are producer 0.0, neutral 0.20, consumer ~0.43.
+# Neutral drain_mult = 1.0 / 0.20 = 5.0. Consumer drain_mult = 11.5
+# (chosen empirically from headless: target ~0.43 lands the discrete
+# attractor on the largest pool/cap value that keeps iron same-node spread
+# at exactly 9 gold, matching the cheapest edge cost). Producer decay and
+# drain mults are both 0 above; pool starts at 0 via slice-8.1 fill and
+# never moves -- producer is structurally sell-dead for its own good.
+#
+# Note: at small caps (neutral cap=4, consumer cap=16) integer quantization
+# moves the discrete attractor off the continuous target. The headless
+# harness measures the actual discrete ratio and gates on the price spread
+# that ratio produces (PricingMath.sell_price_for - buy_price_for), not the
+# analytic curve value. Decision:
+# 2026-05-05-slice-8-2-1-retune-within-node-spread-shadow.
+const DEMAND_DRAIN_MULT_PRODUCER: float = 0.0
+const DEMAND_DRAIN_MULT_NEUTRAL: float = 5.0
+const DEMAND_DRAIN_MULT_CONSUMER: float = 11.5
+
+# Slice-8.2 partial-conservation rider. Each successful sell rolls a coin with
+# this probability; on success the node's demand cap for the sold good is
+# permanently lowered by 1, floored at MIN_DEMAND_CAP_AFTER_EROSION. Texture:
+# heavily-sold nodes show progressively lower sell prices as their absolute
+# pool ceiling shrinks, even while the drain steady-state ratio is preserved.
+const CONSERVATION_FRACTION: float = 0.10
+const MIN_DEMAND_CAP_AFTER_EROSION: int = 2
 
 static func edge_cost(e: EdgeState) -> int:
 	return e.distance * TRAVEL_COST_PER_DISTANCE

@@ -312,25 +312,39 @@ static func _author_supply(node: NodeState, good: Good) -> void:
 static func _author_demand(node: NodeState, good: Good) -> void:
 	var cap_mult: float = WorldRules.DEMAND_CAP_MULT_NEUTRAL
 	var rate_mult: float = WorldRules.DEMAND_DECAY_MULT_NEUTRAL
+	var drain_mult: float = WorldRules.DEMAND_DRAIN_MULT_NEUTRAL
 	var fill_mult: float = WorldRules.DEMAND_INITIAL_FILL_MULT_NEUTRAL
 	if good.id in node.produces:
 		cap_mult = WorldRules.DEMAND_CAP_MULT_PRODUCER
 		rate_mult = WorldRules.DEMAND_DECAY_MULT_PRODUCER
+		drain_mult = WorldRules.DEMAND_DRAIN_MULT_PRODUCER
 		fill_mult = WorldRules.DEMAND_INITIAL_FILL_MULT_PRODUCER
 	elif good.id in node.consumes:
 		cap_mult = WorldRules.DEMAND_CAP_MULT_CONSUMER
 		rate_mult = WorldRules.DEMAND_DECAY_MULT_CONSUMER
+		drain_mult = WorldRules.DEMAND_DRAIN_MULT_CONSUMER
 		fill_mult = WorldRules.DEMAND_INITIAL_FILL_MULT_CONSUMER
 	var cap: int = maxi(1, roundi(float(good.base_demand_cap) * cap_mult))
 	var rate: float = good.base_demand_decay_rate * rate_mult
+	# Slice-8.2: drain rate is the second leg of the leaky-integrator equilibrium.
+	# Steady-state ratio pool*/cap = decay_rate / drain_rate cancels base_decay_rate
+	# and resolves to (DEMAND_DECAY_MULT_<tag>) / (DEMAND_DRAIN_MULT_<tag>).
+	var drain_rate: float = good.base_demand_decay_rate * drain_mult
 	# Sanity rail mirroring _author_supply: a decay rate >= cap saturates the
 	# pool in one tick, defeating the world-breathes-during-travel mechanic.
 	assert(rate < float(cap), "worldgen: demand decay rate (%f) >= cap (%d) for node %s good %s" % [rate, cap, node.id, good.id])
+	# Slice-8.2 sanity rail: drain_rate should be finite, non-negative, and
+	# strictly below cap so a single tick's drain cannot zero a full pool. The
+	# `< cap` form parallels the decay-side rail and gives the same headroom.
+	assert(is_finite(drain_rate) and drain_rate >= 0.0, "worldgen: demand drain rate (%f) not finite/non-negative for node %s good %s" % [drain_rate, node.id, good.id])
+	assert(drain_rate < float(cap), "worldgen: demand drain rate (%f) >= cap (%d) for node %s good %s" % [drain_rate, cap, node.id, good.id])
 	node.demand_caps[good.id] = cap
 	node.demand_decay_rates[good.id] = rate
+	node.demand_drain_rates[good.id] = drain_rate
 	# maxi(0, ...) is defensive: future fill_mult constants must stay >= 0.
 	node.demand_pools[good.id] = maxi(0, roundi(float(cap) * fill_mult))
 	node.demand_decay_accumulators[good.id] = 0.0
+	node.demand_drain_accumulators[good.id] = 0.0
 
 # Slice-8 §5.10: P2 free-lunch predicate becomes diagnostic (not blocking)
 # under the pool curve. For each good, the maximum spread under best pool

@@ -1,0 +1,337 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+worldgen: seed=0 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=1 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=2 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=3 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=4 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=5 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=6 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=7 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=8 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=9 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=10 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=11 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=12 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=13 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=14 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=15 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=16 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=17 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=18 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=19 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=20 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=21 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=22 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=23 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=24 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=25 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=26 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=27 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=28 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=29 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=30 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=31 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=32 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=33 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=34 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=35 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=36 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=37 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=38 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=39 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=40 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=41 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=42 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=43 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=44 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=45 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=46 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=47 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=48 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=49 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=50 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=51 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=52 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=53 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=54 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=55 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=56 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=57 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=58 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=59 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=60 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=61 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=62 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=63 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=64 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=65 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=66 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=67 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=68 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=69 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=70 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=71 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=72 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=73 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=74 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=75 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=76 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=77 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=78 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=79 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=80 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=81 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=82 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=83 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=84 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=85 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=86 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=87 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=88 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=89 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=90 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=91 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=92 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=93 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=94 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=95 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=96 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=97 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=98 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=99 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=100 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=101 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=102 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=103 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=104 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=105 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=106 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=107 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=108 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=109 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=110 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=111 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=7
+worldgen: seed=112 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=113 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=114 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=115 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=116 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=117 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=118 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=119 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=120 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=121 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=122 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=123 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=124 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=125 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=126 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=127 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=128 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=129 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=7
+worldgen: seed=130 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=131 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=7
+worldgen: seed=132 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=133 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=134 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=135 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=136 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=137 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=138 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=139 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=140 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=141 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=142 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=143 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=144 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=145 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=146 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=147 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=148 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=149 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=150 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=151 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=152 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=153 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=154 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=155 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=156 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=157 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=158 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=159 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=160 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=161 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=162 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=163 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=164 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=165 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=166 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=167 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=168 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=169 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=170 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=171 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=172 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=173 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=174 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=175 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=176 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=177 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=178 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=179 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=180 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=181 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=182 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=183 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=184 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=185 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=3
+worldgen: seed=186 nodes=7 edges=8 starting=node_5 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=187 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=188 nodes=7 edges=8 starting=node_4 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=189 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=190 nodes=7 edges=8 starting=node_0 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=191 nodes=7 edges=8 starting=node_6 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=192 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=7
+worldgen: seed=193 nodes=7 edges=8 starting=node_3 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=194 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=195 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=4
+worldgen: seed=196 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=197 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=5
+worldgen: seed=198 nodes=7 edges=8 starting=node_2 min_edge_dist=3 max_edge_dist=6
+worldgen: seed=199 nodes=7 edges=8 starting=node_1 min_edge_dist=3 max_edge_dist=5
+=== slice-8.2 demand drift measurement (decay + drain + refill, no trader) ===
+seeds=200, sample_ticks=[0, 100, 500, 1500, 2000], skipped_worldgen=0
+
+=== tick=0 ===
+  fill ratio (pool/cap) over 5600 (node, good) cells:
+    mean=0.50  min=0.00  max=1.00
+  within-node spread (max-min ratio across goods at one node), 1400 nodes:
+    mean=0.68  min=0.00  max=1.00
+  cross-node spread (max-min ratio for one good across nodes), 800 goods:
+    mean=0.86  min=0.00  max=1.00
+  tag-gated fill markers:
+    producer cells at pool=0:   1390 / 1390  (100.0%)
+    consumer cells at pool=cap: 1401 / 1401  (100.0%)
+
+=== tick=100 ===
+  fill ratio (pool/cap) over 5600 (node, good) cells:
+    mean=0.22  min=0.00  max=0.38
+  within-node spread (max-min ratio across goods at one node), 1400 nodes:
+    mean=0.25  min=0.00  max=0.38
+  cross-node spread (max-min ratio for one good across nodes), 800 goods:
+    mean=0.32  min=0.00  max=0.38
+  tag-gated fill markers:
+    producer cells at pool=0:   1390 / 1390  (100.0%)
+    consumer cells at pool=cap: 0 / 1401  (0.0%)
+
+=== tick=500 ===
+  fill ratio (pool/cap) over 5600 (node, good) cells:
+    mean=0.22  min=0.00  max=0.38
+  within-node spread (max-min ratio across goods at one node), 1400 nodes:
+    mean=0.25  min=0.00  max=0.38
+  cross-node spread (max-min ratio for one good across nodes), 800 goods:
+    mean=0.32  min=0.00  max=0.38
+  tag-gated fill markers:
+    producer cells at pool=0:   1390 / 1390  (100.0%)
+    consumer cells at pool=cap: 0 / 1401  (0.0%)
+
+=== tick=1500 ===
+  fill ratio (pool/cap) over 5600 (node, good) cells:
+    mean=0.22  min=0.00  max=0.38
+  within-node spread (max-min ratio across goods at one node), 1400 nodes:
+    mean=0.25  min=0.00  max=0.38
+  cross-node spread (max-min ratio for one good across nodes), 800 goods:
+    mean=0.32  min=0.00  max=0.38
+  tag-gated fill markers:
+    producer cells at pool=0:   1390 / 1390  (100.0%)
+    consumer cells at pool=cap: 0 / 1401  (0.0%)
+
+=== tick=2000 ===
+  fill ratio (pool/cap) over 5600 (node, good) cells:
+    mean=0.22  min=0.00  max=0.38
+  within-node spread (max-min ratio across goods at one node), 1400 nodes:
+    mean=0.25  min=0.00  max=0.38
+  cross-node spread (max-min ratio for one good across nodes), 800 goods:
+    mean=0.32  min=0.00  max=0.38
+  tag-gated fill markers:
+    producer cells at pool=0:   1390 / 1390  (100.0%)
+    consumer cells at pool=cap: 0 / 1401  (0.0%)
+
+=== convergence (1500 -> 2000) ===
+  per-cell |delta ratio| over 5600 cells:
+    mean=0.0000  max=0.0000
+
+=== same-node price spread (tick=2000) ===
+  per-good max(0, sell - buy) over 200 cells per good:
+    wool    max=5  mean=2.70  (n=1400)
+    cloth   max=7  mean=3.95  (n=1400)
+    salt    max=3  mean=1.54  (n=1400)
+    iron    max=9  mean=4.77  (n=1400)
+  per-world max spread vs that world's cheapest edge cost:
+    aggregate_max_same_node_spread=9   min_cheapest_edge_cost=9
+    failing worlds (max_spread > cheapest_edge): 0 / 200
+
+=== slice-8.2 pass criteria ===
+  1. convergence       mean=0.0000  threshold<0.02   PASS
+  2. below-cap (t=2000) max=0.38 mean=0.22  thresholds max<=0.95 mean<=0.80   PASS
+  3. cross-node spread mean=0.32  threshold>=0.25   PASS
+  4. same-node spread <= cheapest edge (per world):  PASS
+
+=== first-seed sample dump (seed=0) ===
+
+--- seed=0 tick=0 ---
+  node_0: wool(neutral)=2/4 (0.50), cloth(consumer)=16/16 (1.00), salt(neutral)=2/4 (0.50), iron(neutral)=2/4 (0.50)
+  node_1: wool(producer)=0/1 (0.00), cloth(neutral)=2/4 (0.50), salt(neutral)=2/4 (0.50), iron(producer)=0/1 (0.00)
+  node_2: wool(neutral)=2/4 (0.50), cloth(neutral)=2/4 (0.50), salt(neutral)=2/4 (0.50), iron(producer)=0/1 (0.00)
+  node_3: wool(consumer)=16/16 (1.00), cloth(consumer)=16/16 (1.00), salt(neutral)=2/4 (0.50), iron(neutral)=2/4 (0.50)
+  node_4: wool(neutral)=2/4 (0.50), cloth(neutral)=2/4 (0.50), salt(neutral)=2/4 (0.50), iron(neutral)=2/4 (0.50)
+  node_5: wool(consumer)=16/16 (1.00), cloth(consumer)=16/16 (1.00), salt(producer)=0/1 (0.00), iron(producer)=0/1 (0.00)
+  node_6: wool(neutral)=2/4 (0.50), cloth(neutral)=2/4 (0.50), salt(producer)=0/1 (0.00), iron(consumer)=16/16 (1.00)
+
+--- seed=0 tick=100 ---
+  node_0: wool(neutral)=1/4 (0.25), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_1: wool(producer)=0/1 (0.00), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_2: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_3: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_4: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_5: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(producer)=0/1 (0.00), iron(producer)=0/1 (0.00)
+  node_6: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(producer)=0/1 (0.00), iron(consumer)=6/16 (0.38)
+
+--- seed=0 tick=500 ---
+  node_0: wool(neutral)=1/4 (0.25), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_1: wool(producer)=0/1 (0.00), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_2: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_3: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_4: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_5: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(producer)=0/1 (0.00), iron(producer)=0/1 (0.00)
+  node_6: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(producer)=0/1 (0.00), iron(consumer)=6/16 (0.38)
+
+--- seed=0 tick=1500 ---
+  node_0: wool(neutral)=1/4 (0.25), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_1: wool(producer)=0/1 (0.00), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_2: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_3: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_4: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_5: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(producer)=0/1 (0.00), iron(producer)=0/1 (0.00)
+  node_6: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(producer)=0/1 (0.00), iron(consumer)=6/16 (0.38)
+
+--- seed=0 tick=2000 ---
+  node_0: wool(neutral)=1/4 (0.25), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_1: wool(producer)=0/1 (0.00), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_2: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(producer)=0/1 (0.00)
+  node_3: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_4: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(neutral)=1/4 (0.25), iron(neutral)=1/4 (0.25)
+  node_5: wool(consumer)=6/16 (0.38), cloth(consumer)=6/16 (0.38), salt(producer)=0/1 (0.00), iron(producer)=0/1 (0.00)
+  node_6: wool(neutral)=1/4 (0.25), cloth(neutral)=1/4 (0.25), salt(producer)=0/1 (0.00), iron(consumer)=6/16 (0.38)
+
+[B1 harness] PASS P1
+[B1 harness] PASS P2
+[B1 harness] PASS P3
+[B1 harness] PASS P4
+[B1 harness] PASS P5
+[B1 harness] PASS P6
+[B1 harness] PASS P7
+[B1 harness] PASS P8
+[B1 harness] PASS P9
+[B1 harness] PASS P10

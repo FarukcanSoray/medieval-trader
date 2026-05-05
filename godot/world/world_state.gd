@@ -3,7 +3,10 @@ class_name WorldState
 extends Resource
 
 const HISTORY_CAP: int = 10
-const SCHEMA_VERSION: int = 7
+# Slice-8.2 schema bump (7 -> 8): NodeState gains demand_drain_rates,
+# demand_drain_accumulators, sell_seed_counter. v7 saves carry the saturation
+# flaw and are strict-rejected; corruption-toast/regen takes over. Spec §10.
+const SCHEMA_VERSION: int = 8
 
 @export var schema_version: int = SCHEMA_VERSION
 @export var world_seed: int
@@ -89,6 +92,25 @@ func decrement_demand(node_id: String, good_id: String) -> void:
 		return
 	n.demand_pools[good_id] = current - 1
 
+## Slice-8.2 partial-conservation mutator. Erodes the demand cap for
+## (node_id, good_id) by `amount`, floored at MIN_DEMAND_CAP_AFTER_EROSION.
+## Defensive no-op on unknown node, unknown good, or amount <= 0. Mirrors the
+## decrement_demand defensive shape; called only from Trade.try_sell after the
+## probabilistic gate fires. Does NOT clamp demand_pools to the new cap --
+## PricingMath has a defensive clampi at read time, and DemandSystem's next
+## tick re-clamps inside the per-(node, good) loop.
+func decrement_demand_cap_permanent(node_id: String, good_id: String, amount: int) -> void:
+	if amount <= 0:
+		return
+	var n: NodeState = get_node_by_id(node_id)
+	if n == null:
+		return
+	if not n.demand_caps.has(good_id):
+		return
+	var current_cap: int = int(n.demand_caps[good_id])
+	var new_cap: int = maxi(WorldRules.MIN_DEMAND_CAP_AFTER_EROSION, current_cap - amount)
+	n.demand_caps[good_id] = new_cap
+
 ## Returns all edges incident to node_id (undirected). Empty id -> empty array.
 func outbound_edges(node_id: String) -> Array[EdgeState]:
 	var result: Array[EdgeState] = []
@@ -161,6 +183,15 @@ func to_dict() -> Dictionary:
 		var demand_decay_accumulators_dict: Dictionary = {}
 		for good_id: String in n.demand_decay_accumulators.keys():
 			demand_decay_accumulators_dict[good_id] = float(n.demand_decay_accumulators[good_id])
+		# Slice-8.2 schema v8: demand quad becomes a sextet. drain_rates and
+		# drain_accumulators share the demand-pool key set per node; sell_seed_counter
+		# is a plain int per node, default 0.
+		var demand_drain_rates_dict: Dictionary = {}
+		for good_id: String in n.demand_drain_rates.keys():
+			demand_drain_rates_dict[good_id] = float(n.demand_drain_rates[good_id])
+		var demand_drain_accumulators_dict: Dictionary = {}
+		for good_id: String in n.demand_drain_accumulators.keys():
+			demand_drain_accumulators_dict[good_id] = float(n.demand_drain_accumulators[good_id])
 		nodes_array.append({
 			"id": n.id,
 			"name": n.display_name,
@@ -176,6 +207,9 @@ func to_dict() -> Dictionary:
 			"demand_caps": demand_caps_dict,
 			"demand_decay_rates": demand_decay_rates_dict,
 			"demand_decay_accumulators": demand_decay_accumulators_dict,
+			"demand_drain_rates": demand_drain_rates_dict,
+			"demand_drain_accumulators": demand_drain_accumulators_dict,
+			"sell_seed_counter": n.sell_seed_counter,
 		})
 	var edges_array: Array = []
 	for e: EdgeState in edges:
@@ -212,11 +246,13 @@ func to_dict() -> Dictionary:
 	}
 
 ## Strict reject: returns null on any structural corruption per slice-spec §8.
-## Slice-8.1: accept v7 only. v5 and v6 are strict-rejected (both shipped the
-## same-node arbitrage flaw -- v5 had no demand pool at all, v6 author/migrate
-## both filled producer demand to cap). v4 and earlier remain strict-rejected.
+## Slice-8.2: accept v8 only. v7 saves carry the demand-saturation flaw (no
+## proportional drain), so even a successful migration would land the player in
+## a flat-demand world that 8.2 immediately invalidates -- regen wins. All
+## earlier versions remain strict-rejected.
 ## Decisions: 2026-05-04-slice-8-v4-saves-strict-rejected,
-## 2026-05-04-slice-8-tag-gated-initial-demand-fill.
+## 2026-05-04-slice-8-tag-gated-initial-demand-fill. Slice-8.2 strict-reject
+## ratified in docs/slice-8-2-demand-reshape-spec.md §10.
 static func from_dict(d: Dictionary) -> WorldState:
 	const REQUIRED_KEYS: Array[String] = [
 		"schema_version", "world_seed", "tick",
@@ -300,11 +336,16 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 		return null
 	if not d.has("stocks") or not d.has("refill_accumulators"):
 		return null
-	# Slice-8 schema v6+: demand pool quad required on every node. Slice-8.1
-	# (v7) drops the v5 -> v6 migration; only v7 is accepted upstream.
+	# Slice-8 schema v6+: demand pool quad required on every node. Slice-8.2
+	# (v8) extends the quad to a sextet plus a per-node sell_seed_counter; only
+	# v8 is accepted upstream.
 	if not d.has("demand_pools") or not d.has("demand_caps"):
 		return null
 	if not d.has("demand_decay_rates") or not d.has("demand_decay_accumulators"):
+		return null
+	if not d.has("demand_drain_rates") or not d.has("demand_drain_accumulators"):
+		return null
+	if not d.has("sell_seed_counter"):
 		return null
 	var pos_value: Variant = d["pos"]
 	if not (pos_value is Array):
@@ -363,6 +404,13 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 	if not (d["demand_decay_accumulators"] is Dictionary):
 		return null
 	var demand_decay_accumulators_typed: Dictionary[String, float] = _typed_float_dict(d["demand_decay_accumulators"])
+	# Slice-8.2 demand sextet additions.
+	if not (d["demand_drain_rates"] is Dictionary):
+		return null
+	var demand_drain_rates_typed: Dictionary[String, float] = _typed_float_dict(d["demand_drain_rates"])
+	if not (d["demand_drain_accumulators"] is Dictionary):
+		return null
+	var demand_drain_accumulators_typed: Dictionary[String, float] = _typed_float_dict(d["demand_drain_accumulators"])
 	var n: NodeState = NodeState.new()
 	n.id = String(d["id"])
 	n.display_name = String(d["name"])
@@ -378,6 +426,12 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 	n.demand_caps = demand_caps_typed
 	n.demand_decay_rates = demand_decay_rates_typed
 	n.demand_decay_accumulators = demand_decay_accumulators_typed
+	n.demand_drain_rates = demand_drain_rates_typed
+	n.demand_drain_accumulators = demand_drain_accumulators_typed
+	# Defensive default-to-0 even though the missing-key branch above already
+	# strict-rejects. Architect handoff §10 calls for the defensive read so
+	# future v8.x counter additions can pattern off it.
+	n.sell_seed_counter = int(d["sell_seed_counter"])
 	return n
 
 static func _typed_int_dict(value: Variant) -> Dictionary[String, int]:
