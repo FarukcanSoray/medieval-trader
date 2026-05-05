@@ -84,10 +84,6 @@ func try_sell(good_id: String) -> bool:
 	# Gating check: refuse to sell what we don't have.
 	if int(_trader.inventory.get(good_id, 0)) <= 0:
 		return false
-	# Slice-8 §7.2: demand-pool gate. Selling into a saturated market is
-	# disabled in the UI; the verb mirrors that as the ground truth.
-	if _world.demand_for(node.id, good_id) <= 0:
-		return false
 	# Slice-8: pull-driven price via PricingMath.
 	var price: int = PricingMath.sell_price_for(_world, node, good_id)
 	if price <= 0:

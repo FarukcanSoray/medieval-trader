@@ -3,7 +3,7 @@ class_name WorldState
 extends Resource
 
 const HISTORY_CAP: int = 10
-const SCHEMA_VERSION: int = 6
+const SCHEMA_VERSION: int = 7
 
 @export var schema_version: int = SCHEMA_VERSION
 @export var world_seed: int
@@ -212,8 +212,11 @@ func to_dict() -> Dictionary:
 	}
 
 ## Strict reject: returns null on any structural corruption per slice-spec §8.
-## Slice-8: accept v5 (via _migrate_v5_to_v6) or v6. v4 and earlier are
-## strict-rejected. Decision: 2026-05-04-slice-8-v4-saves-strict-rejected.
+## Slice-8.1: accept v7 only. v5 and v6 are strict-rejected (both shipped the
+## same-node arbitrage flaw -- v5 had no demand pool at all, v6 author/migrate
+## both filled producer demand to cap). v4 and earlier remain strict-rejected.
+## Decisions: 2026-05-04-slice-8-v4-saves-strict-rejected,
+## 2026-05-04-slice-8-tag-gated-initial-demand-fill.
 static func from_dict(d: Dictionary) -> WorldState:
 	const REQUIRED_KEYS: Array[String] = [
 		"schema_version", "world_seed", "tick",
@@ -222,18 +225,12 @@ static func from_dict(d: Dictionary) -> WorldState:
 	for key: String in REQUIRED_KEYS:
 		if not d.has(key):
 			return null
-	# Slice-8 schema bump (5 -> 6). v5 carries supply pool but no demand pool;
-	# the migration synthesises demand state from tags via the §5.7 multiplier
-	# table. v6 is the current shape. See spec §3.5, §3.6.
+	# Slice-8.1 schema bump (6 -> 7). Producer nodes now start with empty
+	# demand pools at gen time; v5 and v6 saves carried the buggy fill (every
+	# node full) so they are rejected wholesale rather than migrated. The
+	# corruption-toast / regen path takes over.
 	var loaded_version: int = int(d["schema_version"])
-	if loaded_version == SCHEMA_VERSION:
-		pass
-	elif loaded_version == 5:
-		var migrated: Dictionary = _migrate_v5_to_v6(d)
-		if migrated.is_empty():
-			return null
-		d = migrated
-	else:
+	if loaded_version != SCHEMA_VERSION:
 		return null
 	if not (d["nodes"] is Array) or not (d["edges"] is Array) or not (d["history"] is Array):
 		return null
@@ -303,8 +300,8 @@ static func _node_from_dict(d: Dictionary) -> NodeState:
 		return null
 	if not d.has("stocks") or not d.has("refill_accumulators"):
 		return null
-	# Slice-8 schema v6: demand pool quad required on every node. v5 saves are
-	# rewritten upstream by _migrate_v5_to_v6 before reaching here.
+	# Slice-8 schema v6+: demand pool quad required on every node. Slice-8.1
+	# (v7) drops the v5 -> v6 migration; only v7 is accepted upstream.
 	if not d.has("demand_pools") or not d.has("demand_caps"):
 		return null
 	if not d.has("demand_decay_rates") or not d.has("demand_decay_accumulators"):
@@ -433,92 +430,3 @@ static func _death_from_dict(d: Dictionary) -> DeathRecord:
 	r.final_gold = int(d["final_gold"])
 	return r
 
-## Slice-8 v5 -> v6 migration. Synthesises per-(node, good) demand pool state
-## from the v5 shape (which has supply pool but no demand pool). For each node,
-## derives demand caps and decay rates from the live Goods catalogue via the
-## §5.7 multiplier table (inverse of supply: producer = low demand,
-## consumer = high demand), sets demand_pools to demand_caps (full unmet demand
-## at the migration boundary -- spec §3.6 / Director Q1 ratification:
-## 2026-05-04-slice-8-initial-demand-pool-fill-on-migration), and zeros the
-## accumulators. Drops the legacy `prices` key (no-op on absent key; v5 saves
-## carrying it pass through silently per spec §3.6).
-##
-## Returns {} on irrecoverable shape so the caller can strict-reject.
-##
-## Per 2026-05-03-slice-7-caps-rates-frozen-at-gen-time precedent (extended to
-## demand by 2026-05-04-slice-8-demand-rates-frozen-at-gen-time): the derived
-## caps/rates are written to the save once and never recomputed on load.
-static func _migrate_v5_to_v6(d: Dictionary) -> Dictionary:
-	if not (d["nodes"] is Array):
-		return {}
-	var goods: Array[Good] = _resolve_goods_for_migration()
-	if goods.is_empty():
-		# Without the live catalogue we cannot derive demand state. Strict-reject
-		# rather than write a half-formed v6 dict. Mirrors v4->v5.
-		push_warning("WorldState._migrate_v5_to_v6: Goods catalogue unavailable, rejecting v5 save")
-		return {}
-	var nodes_arr: Array = d["nodes"] as Array
-	for raw: Variant in nodes_arr:
-		if not (raw is Dictionary):
-			return {}
-		var node_dict: Dictionary = raw
-		var produces_arr: Array = []
-		if node_dict.has("produces") and node_dict["produces"] is Array:
-			produces_arr = node_dict["produces"] as Array
-		var consumes_arr: Array = []
-		if node_dict.has("consumes") and node_dict["consumes"] is Array:
-			consumes_arr = node_dict["consumes"] as Array
-		var demand_caps: Dictionary = {}
-		var demand_decay_rates: Dictionary = {}
-		var demand_pools: Dictionary = {}
-		var demand_accumulators: Dictionary = {}
-		for good: Good in goods:
-			var cap_mult: float = WorldRules.DEMAND_CAP_MULT_NEUTRAL
-			var rate_mult: float = WorldRules.DEMAND_DECAY_MULT_NEUTRAL
-			if good.id in produces_arr:
-				cap_mult = WorldRules.DEMAND_CAP_MULT_PRODUCER
-				rate_mult = WorldRules.DEMAND_DECAY_MULT_PRODUCER
-			elif good.id in consumes_arr:
-				cap_mult = WorldRules.DEMAND_CAP_MULT_CONSUMER
-				rate_mult = WorldRules.DEMAND_DECAY_MULT_CONSUMER
-			var cap: int = maxi(1, roundi(float(good.base_demand_cap) * cap_mult))
-			var rate: float = good.base_demand_decay_rate * rate_mult
-			demand_caps[good.id] = cap
-			demand_decay_rates[good.id] = rate
-			# Director Q1: migrate at target. First post-update leg reads as
-			# broadly favorable for selling (acceptable upgrade-UX cost).
-			demand_pools[good.id] = cap
-			demand_accumulators[good.id] = 0.0
-		node_dict["demand_caps"] = demand_caps
-		node_dict["demand_decay_rates"] = demand_decay_rates
-		node_dict["demand_pools"] = demand_pools
-		node_dict["demand_decay_accumulators"] = demand_accumulators
-		# Spec §3.6 step 3: drop the v5 `prices` key. Erase is no-op on absent
-		# key, so the migration is forward-tolerant of partial v5 dicts.
-		node_dict.erase("prices")
-	d["schema_version"] = SCHEMA_VERSION
-	return d
-
-# Looks up the Game autoload's `goods` array via the scene tree. Returns []
-# when the autoload is unreachable (--script mode strips autoloads, and tooling
-# entry points may run before the tree is up). Callers must treat empty as a
-# fatal-for-this-migration condition.
-static func _resolve_goods_for_migration() -> Array[Good]:
-	var loop: MainLoop = Engine.get_main_loop()
-	if loop == null or not (loop is SceneTree):
-		return [] as Array[Good]
-	var tree: SceneTree = loop as SceneTree
-	var root: Window = tree.root
-	if root == null:
-		return [] as Array[Good]
-	var game_node: Node = root.get_node_or_null("Game")
-	if game_node == null:
-		return [] as Array[Good]
-	var raw: Variant = game_node.get("goods")
-	if raw == null:
-		return [] as Array[Good]
-	var typed: Array[Good] = []
-	for entry: Variant in (raw as Array):
-		if entry is Good:
-			typed.append(entry as Good)
-	return typed

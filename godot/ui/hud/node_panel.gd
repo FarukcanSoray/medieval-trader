@@ -10,11 +10,6 @@ extends Control
 signal buy_requested(good_id: String)
 signal sell_requested(good_id: String)
 
-# Width of the supply / demand fill bars, in characters. 5 chars resolves the
-# 0..cap range into 6 buckets ('.....' through '#####') -- enough granularity
-# for at-a-glance reads without crowding the row. ASCII only (web export).
-const BAR_WIDTH: int = 5
-
 @onready var _title_label: Label = $VBox/TitleLabel
 @onready var _cart_label: Label = $VBox/CartLabel
 @onready var _rows_container: VBoxContainer = $VBox/Rows
@@ -166,18 +161,12 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, world: WorldS
 		tag = " (plentiful)"
 	elif good.id in node.consumes:
 		tag = " (scarce)"
-	# Slice-7 §8.1 + slice-8 §7: pool fills as ASCII bars. Supply bar uses
-	# square brackets, demand bar uses angle brackets so the two reads are
-	# distinguishable at a glance. [N left] retained as the slice-7 precise
-	# integer read.
+	# Pillar: prices are the player's window into pool memory. Stock count is
+	# the one extra read the player needs -- it's a hard buy-side limit that
+	# price alone doesn't convey ("can't buy what isn't here").
 	var stock: int = world.stock_for(node.id, good.id)
-	var stock_cap: int = int(node.stock_caps.get(good.id, 0))
-	var supply_bar: String = _ascii_bar(stock, stock_cap, "[", "]")
-	var demand_pool: int = world.demand_for(node.id, good.id)
-	var demand_cap: int = int(node.demand_caps.get(good.id, 0))
-	var demand_bar: String = _ascii_bar(demand_pool, demand_cap, "<", ">")
-	price_label.text = "B %dg S %dg%s %s%s [%d left]" % [
-		buy_price, sell_price, tag, supply_bar, demand_bar, stock,
+	price_label.text = "B %dg S %dg%s [%d left]" % [
+		buy_price, sell_price, tag, stock,
 	]
 
 	if force_disabled:
@@ -194,12 +183,9 @@ func _update_row(good: Good, node: NodeState, trader: TraderState, world: WorldS
 	var in_stock: bool = stock > 0
 	buy_button.disabled = not affordable or not fits_in_cart or not in_stock
 	buy_button.tooltip_text = _buy_tooltip(buy_price, trader.gold, good.weight, current_load, affordable, fits_in_cart, in_stock)
-	# Slice-8 §7.2: sell button disables when demand pool is saturated. Tooltip
-	# names the saturation explicitly so the player reads the refusal cause.
 	var has_owned: bool = owned > 0
-	var market_open: bool = demand_pool > 0
-	sell_button.disabled = not has_owned or not market_open
-	sell_button.tooltip_text = _sell_tooltip(has_owned, market_open)
+	sell_button.disabled = not has_owned
+	sell_button.tooltip_text = ""
 
 # Slice-7 §8.2 / slice-8 §7.2: tooltip priority order is stock > cart > gold.
 # Empty string when the buy is permitted; the refusal string names every
@@ -223,26 +209,6 @@ func _buy_tooltip(price: int, gold: int, weight: int, current_load: int, afforda
 	if not affordable:
 		return "Need %dg more" % gold_short
 	return "Need %d more cart space" % space_short
-
-# Slice-8 §7.2: sell tooltip distinguishes "no inventory" from "saturated
-# market." The latter is the new failure mode introduced by the demand pool;
-# the player needs the explicit text or the disabled button feels like a bug.
-func _sell_tooltip(has_owned: bool, market_open: bool) -> String:
-	if has_owned and market_open:
-		return ""
-	if not has_owned:
-		return ""
-	# has_owned but not market_open -> saturated.
-	return "local market saturated"
-
-# Returns a fixed-width ASCII fill bar of BAR_WIDTH chars, surrounded by the
-# given open/close characters. cap=0 renders an empty bar. Spec §7.2 -- supply
-# uses [#####], demand uses <#####>.
-func _ascii_bar(value: int, cap: int, open: String, close: String) -> String:
-	if cap <= 0:
-		return open + ".".repeat(BAR_WIDTH) + close
-	var filled: int = clampi(roundi(float(value) / float(cap) * float(BAR_WIDTH)), 0, BAR_WIDTH)
-	return open + "#".repeat(filled) + ".".repeat(BAR_WIDTH - filled) + close
 
 func _set_all_rows_disabled(disabled: bool) -> void:
 	for row: Control in _rows.values():

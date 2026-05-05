@@ -115,7 +115,10 @@ static func forward_port_goods(world: WorldState, all_goods: Array[Good]) -> boo
 	# _author_supply / _author_demand write the four-dict quads per (node, good),
 	# so a save with three goods loaded onto a four-good build gets the missing
 	# good's pool state filled byte-identically to a fresh-gen save with the
-	# same tags.
+	# same tags. Slice-8.1: the byte-identity property is load-bearing because
+	# _author_demand's fill is now tag-dependent -- _author_bias must write the
+	# same tags for missing goods regardless of authoring order, which it does
+	# (it never reads other goods' state).
 	for node: NodeState in world.nodes:
 		for good: Good in missing:
 			_author_supply(node, good)
@@ -299,18 +302,25 @@ static func _author_supply(node: NodeState, good: Good) -> void:
 # Good.base_demand_cap / Good.base_demand_decay_rate * tag multiplier. The
 # multiplier table inverts supply: produces --> producer (low demand: locals
 # don't crave their own export), consumes --> consumer (high demand: locals
-# always want their imports), neither --> neutral. Demand pool starts at cap
-# (full unmet demand) and accumulator at 0. The migration path from v5 mirrors
-# these exact values per spec §3.6.
+# always want their imports), neither --> neutral.
+#
+# Slice-8.1: initial demand pool fill is tag-gated, not always-full. Producer
+# nodes start at 0 (sell-dead for their own good -- closes the same-node
+# arbitrage flaw shipped in slice-8), consumer nodes start at cap (full unmet
+# demand -- day-0 sell target), neutral nodes start at half. Cap and decay rate
+# are unaffected; only the gen-time fill differs from steady-state cap.
 static func _author_demand(node: NodeState, good: Good) -> void:
 	var cap_mult: float = WorldRules.DEMAND_CAP_MULT_NEUTRAL
 	var rate_mult: float = WorldRules.DEMAND_DECAY_MULT_NEUTRAL
+	var fill_mult: float = WorldRules.DEMAND_INITIAL_FILL_MULT_NEUTRAL
 	if good.id in node.produces:
 		cap_mult = WorldRules.DEMAND_CAP_MULT_PRODUCER
 		rate_mult = WorldRules.DEMAND_DECAY_MULT_PRODUCER
+		fill_mult = WorldRules.DEMAND_INITIAL_FILL_MULT_PRODUCER
 	elif good.id in node.consumes:
 		cap_mult = WorldRules.DEMAND_CAP_MULT_CONSUMER
 		rate_mult = WorldRules.DEMAND_DECAY_MULT_CONSUMER
+		fill_mult = WorldRules.DEMAND_INITIAL_FILL_MULT_CONSUMER
 	var cap: int = maxi(1, roundi(float(good.base_demand_cap) * cap_mult))
 	var rate: float = good.base_demand_decay_rate * rate_mult
 	# Sanity rail mirroring _author_supply: a decay rate >= cap saturates the
@@ -318,7 +328,8 @@ static func _author_demand(node: NodeState, good: Good) -> void:
 	assert(rate < float(cap), "worldgen: demand decay rate (%f) >= cap (%d) for node %s good %s" % [rate, cap, node.id, good.id])
 	node.demand_caps[good.id] = cap
 	node.demand_decay_rates[good.id] = rate
-	node.demand_pools[good.id] = cap
+	# maxi(0, ...) is defensive: future fill_mult constants must stay >= 0.
+	node.demand_pools[good.id] = maxi(0, roundi(float(cap) * fill_mult))
 	node.demand_decay_accumulators[good.id] = 0.0
 
 # Slice-8 §5.10: P2 free-lunch predicate becomes diagnostic (not blocking)

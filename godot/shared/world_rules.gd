@@ -72,6 +72,16 @@ const DEMAND_CAP_MULT_CONSUMER: float = 4.0
 const DEMAND_DECAY_MULT_PRODUCER: float = 0.2
 const DEMAND_DECAY_MULT_NEUTRAL: float = 1.0
 const DEMAND_DECAY_MULT_CONSUMER: float = 5.0
+# Slice-8.1 §X: tag-gated initial demand fill at world-gen time. These are the
+# fill-fraction at gen time, NOT a steady-state cap (caps remain governed by
+# DEMAND_CAP_MULT_*). Producer nodes start with empty demand pools so the same
+# node cannot be both supply-rich and demand-rich for its produced good
+# (closes the slice-8 same-node arbitrage flaw). Consumer nodes start full
+# (sell-target on day 0); neutral nodes start half. Decision:
+# 2026-05-04-slice-8-tag-gated-initial-demand-fill.
+const DEMAND_INITIAL_FILL_MULT_PRODUCER: float = 0.0
+const DEMAND_INITIAL_FILL_MULT_NEUTRAL: float = 0.5
+const DEMAND_INITIAL_FILL_MULT_CONSUMER: float = 1.0
 
 # Slice-8 perturbation envelope. +/-5% multiplicative on the curve output,
 # seeded as hash([world_seed, tick, node_id, good_id, side]). Decision:
